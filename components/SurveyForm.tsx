@@ -205,33 +205,6 @@ export function SurveyForm({ locale = 'ru', onSuccess }: SurveyFormProps) {
 
   return (
     <div className="w-full max-w-3xl mx-auto">
-      {/* Навигация по секциям */}
-      <div className="hidden md:flex items-center justify-between border-b mb-8 pb-2 overflow-x-auto gap-2">
-        {surveyData.map((section, index) => (
-          <button
-            key={index}
-            onClick={() => scrollToSection(index)}
-            className={`px-4 py-2 whitespace-nowrap text-sm rounded-md transition-all ${
-              index === activeSection
-                ? 'bg-accent text-accent-foreground font-medium'
-                : 'text-muted-foreground hover:text-foreground hover:bg-accent/10'
-            }`}
-          >
-            {t(`nav.${section.id}`, section.title, locale)}
-          </button>
-        ))}
-      </div>
-      
-      {/* Мобильная навигация - текущий раздел */}
-      <div className="md:hidden flex items-center justify-between border-b mb-8 pb-4">
-        <div className="text-lg font-medium">
-          {t(`nav.${surveyData[activeSection].id}`, surveyData[activeSection].title, locale)}
-        </div>
-        <div className="text-sm text-muted-foreground">
-          {activeSection + 1} / {surveyData.length}
-        </div>
-      </div>
-
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         {/* Интро текст */}
         <div className="prose prose-lg mb-8 animate-fade-in">
@@ -249,12 +222,14 @@ export function SurveyForm({ locale = 'ru', onSuccess }: SurveyFormProps) {
           <div 
             key={sectionIndex}
             ref={(el) => { sectionRefs.current[sectionIndex] = el; }}
-            className={`space-y-6 transition-all duration-500 ${
-              sectionIndex === activeSection 
-                ? 'opacity-100 translate-y-0' 
-                : 'opacity-70 translate-y-4'
-            }`}
+            className="space-y-6 transition-all duration-500 animate-fadeIn"
+            style={{ animationDelay: `${sectionIndex * 200}ms` }}
           >
+            {/* Заголовок секции */}
+            <h2 className="text-2xl font-bold text-accent">
+              {t(`sections.${section.id}`, section.title, locale)}
+            </h2>
+            
             {/* Особая вставка изображения перед разделом устройства */}
             {sectionIndex === 1 && (
               <SurveyImage 
@@ -294,8 +269,8 @@ export function SurveyForm({ locale = 'ru', onSuccess }: SurveyFormProps) {
               return (
                 <div 
                   key={question.id} 
-                  className="rounded-lg border p-6 animate-fade-in animate-delay"
-                  style={{ animationDelay: `${(sectionIndex * 0.1) + 0.1}s` }}
+                  className="rounded-lg border p-6 animate-fadeIn"
+                  style={{ animationDelay: `${sectionIndex * 200 + 100}ms` }}
                 >
                   <div className="mb-4">
                     <label htmlFor={question.id} className="text-lg font-medium block mb-2">
@@ -434,9 +409,9 @@ export function SurveyForm({ locale = 'ru', onSuccess }: SurveyFormProps) {
               );
             })}
             
-            {/* Навигационные кнопки в конце каждой секции */}
-            {sectionIndex < surveyData.length - 1 ? (
-              <div className="flex justify-end pt-4">
+            {/* Навигационные кнопки между секциями */}
+            {sectionIndex < surveyData.length - 1 && (
+              <div className="flex justify-end pt-4 pb-8 border-b">
                 <button
                   type="button"
                   onClick={() => scrollToSection(sectionIndex + 1)}
@@ -446,8 +421,10 @@ export function SurveyForm({ locale = 'ru', onSuccess }: SurveyFormProps) {
                   <ArrowRight className="h-4 w-4" />
                 </button>
               </div>
-            ) : (
-              /* Кнопка отправки только в последней секции */
+            )}
+            
+            {/* Кнопка отправки только в последней секции */}
+            {sectionIndex === surveyData.length - 1 && (
               <div className="pt-8">
                 <p className="mb-8 text-lg">
                   {t('form.outro', 'Ёу-ёу-ёу! Вопросы закончились! Спасибо большое :)', locale)}
