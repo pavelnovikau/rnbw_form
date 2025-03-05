@@ -471,8 +471,8 @@ export function SurveyForm({ locale = 'ru', onSuccess }: SurveyFormProps) {
                   <SurveyImage 
                     src={
                       index === 0 ? '/images/Bedroom.png' : 
-                      index === 1 ? '/images/Bathroom2.png' : 
-                      index === 2 ? '/images/Dispensers.png' : 
+                      index === 1 ? '/images/Bathroom.png' : 
+                      index === 2 ? '/images/dispensers.png' : 
                       '/images/Bathroom.png'
                     } 
                     alt={`RNBW устройство - ${t(`sections.${section.id}`, section.title, locale)}`} 
