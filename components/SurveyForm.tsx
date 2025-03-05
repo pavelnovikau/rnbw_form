@@ -12,6 +12,17 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
+import { cn } from '@/lib/utils';
+
+// Import icons
+import { 
+  ChevronRight, 
+  CheckCircle2, 
+  Mail, 
+  User, 
+  Send,
+  Loader2
+} from 'lucide-react';
 
 // Create a dynamic schema based on the survey data
 const createSurveySchema = () => {
@@ -69,6 +80,7 @@ const SurveyForm: React.FC = () => {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [currentLocale, setCurrentLocale] = useState('en'); // For future localization
+  const [activeSection, setActiveSection] = useState(0); // To track active section for animation
 
   const {
     register,
@@ -121,7 +133,7 @@ const SurveyForm: React.FC = () => {
           <div key={questionId} className="mb-6 space-y-3">
             <Label className="text-base font-medium">
               {t(question.titleKey, question.defaultTitle, currentLocale)}
-              {isRequired && <span className="text-red-500 ml-1">*</span>}
+              {isRequired && <span className="text-destructive ml-1">*</span>}
             </Label>
             <Controller
               name={questionId as any}
@@ -130,12 +142,19 @@ const SurveyForm: React.FC = () => {
                 <RadioGroup
                   onValueChange={field.onChange}
                   defaultValue={field.value}
-                  className="space-y-2 mt-2"
+                  className="fancy-radio-group"
                 >
                   {question.options?.map((option: any) => (
-                    <div key={option.id} className="flex items-center space-x-2">
-                      <RadioGroupItem id={`${questionId}-${option.id}`} value={option.id} />
-                      <Label htmlFor={`${questionId}-${option.id}`} className="font-normal">
+                    <div key={option.id} className="fancy-radio-item group">
+                      <RadioGroupItem 
+                        id={`${questionId}-${option.id}`} 
+                        value={option.id}
+                        className="text-primary border-primary/50"
+                      />
+                      <Label 
+                        htmlFor={`${questionId}-${option.id}`} 
+                        className="font-normal group-hover:text-primary transition-colors duration-200"
+                      >
                         {t(option.labelKey, option.defaultText, currentLocale)}
                       </Label>
                     </div>
@@ -144,7 +163,9 @@ const SurveyForm: React.FC = () => {
               )}
             />
             {hasError && (
-              <p className="text-sm font-medium text-destructive mt-1">{errors[questionId]?.message as string}</p>
+              <p className="text-sm font-medium text-destructive mt-1 flex items-center">
+                {errors[questionId]?.message as string}
+              </p>
             )}
           </div>
         );
@@ -154,11 +175,11 @@ const SurveyForm: React.FC = () => {
           <div key={questionId} className="mb-6 space-y-3">
             <Label className="text-base font-medium">
               {t(question.titleKey, question.defaultTitle, currentLocale)}
-              {isRequired && <span className="text-red-500 ml-1">*</span>}
+              {isRequired && <span className="text-destructive ml-1">*</span>}
             </Label>
             <div className="space-y-2 mt-2">
               {question.options?.map((option: any) => (
-                <div key={option.id} className="flex items-center space-x-2">
+                <div key={option.id} className="fancy-radio-item group">
                   <Controller
                     name={questionId as any}
                     control={control}
@@ -174,18 +195,24 @@ const SurveyForm: React.FC = () => {
                               : (field.value || []).filter((value: string) => value !== option.id);
                             field.onChange(updatedValue);
                           }}
+                          className="text-primary border-primary/50 data-[state=checked]:bg-primary"
                         />
                       );
                     }}
                   />
-                  <Label htmlFor={`${questionId}-${option.id}`} className="font-normal">
+                  <Label 
+                    htmlFor={`${questionId}-${option.id}`} 
+                    className="font-normal group-hover:text-primary transition-colors duration-200"
+                  >
                     {t(option.labelKey, option.defaultText, currentLocale)}
                   </Label>
                 </div>
               ))}
             </div>
             {hasError && (
-              <p className="text-sm font-medium text-destructive mt-1">{errors[questionId]?.message as string}</p>
+              <p className="text-sm font-medium text-destructive mt-1 flex items-center">
+                {errors[questionId]?.message as string}
+              </p>
             )}
           </div>
         );
@@ -195,15 +222,18 @@ const SurveyForm: React.FC = () => {
           <div key={questionId} className="mb-6 space-y-3">
             <Label htmlFor={questionId} className="text-base font-medium">
               {t(question.titleKey, question.defaultTitle, currentLocale)}
-              {isRequired && <span className="text-red-500 ml-1">*</span>}
+              {isRequired && <span className="text-destructive ml-1">*</span>}
             </Label>
             <Textarea
               id={questionId}
               placeholder={`${t(question.titleKey, question.defaultTitle, currentLocale)}...`}
               {...register(questionId)}
+              className="textarea-field min-h-[120px] resize-y"
             />
             {hasError && (
-              <p className="text-sm font-medium text-destructive mt-1">{errors[questionId]?.message as string}</p>
+              <p className="text-sm font-medium text-destructive mt-1 flex items-center">
+                {errors[questionId]?.message as string}
+              </p>
             )}
           </div>
         );
@@ -214,16 +244,19 @@ const SurveyForm: React.FC = () => {
           <div key={questionId} className="mb-6 space-y-3">
             <Label htmlFor={questionId} className="text-base font-medium">
               {t(question.titleKey, question.defaultTitle, currentLocale)}
-              {isRequired && <span className="text-red-500 ml-1">*</span>}
+              {isRequired && <span className="text-destructive ml-1">*</span>}
             </Label>
             <Input
               id={questionId}
               type="text"
               placeholder={`${t(question.titleKey, question.defaultTitle, currentLocale)}...`}
               {...register(questionId)}
+              className="input-field"
             />
             {hasError && (
-              <p className="text-sm font-medium text-destructive mt-1">{errors[questionId]?.message as string}</p>
+              <p className="text-sm font-medium text-destructive mt-1 flex items-center">
+                {errors[questionId]?.message as string}
+              </p>
             )}
           </div>
         );
@@ -232,25 +265,24 @@ const SurveyForm: React.FC = () => {
 
   if (submitSuccess) {
     return (
-      <div className="max-w-2xl mx-auto bg-card p-8 rounded-lg shadow-md">
+      <div className="max-w-2xl mx-auto success-message animate-in fade-in duration-500 slide-in-from-bottom-5">
         <div className="text-center">
-          <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-green-100">
-            <svg className="h-8 w-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-            </svg>
+          <div className="success-icon-container">
+            <CheckCircle2 className="h-8 w-8" />
           </div>
-          <h2 className="mt-3 text-xl font-medium text-foreground">
+          <h2 className="mt-5 text-xl font-medium">
             {t('survey.thankYou', 'Thank you for your feedback!')}
           </h2>
-          <p className="mt-2 text-muted-foreground">
+          <p className="mt-3 text-muted-foreground">
             {t('survey.responseRecorded', 'Your responses have been recorded and will help us improve the RNBW device.')}
           </p>
           <Button
             onClick={() => setSubmitSuccess(false)}
             variant="secondary"
-            className="mt-6"
+            className="mt-6 group"
           >
             {t('survey.submitAnother', 'Submit another response')}
+            <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
           </Button>
         </div>
       </div>
@@ -258,92 +290,116 @@ const SurveyForm: React.FC = () => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto" id="survey-form">
-      <div className="text-center mb-10">
-        <h2 className="text-2xl font-bold mb-4">{t('survey.title', 'We Value Your Input')}</h2>
-        <p className="text-lg text-muted-foreground">
+    <div className="max-w-3xl mx-auto px-4 animate-in fade-in duration-700" id="survey-form">
+      <div className="text-center mb-12">
+        <h2 className="text-3xl font-bold mb-4">{t('survey.title', 'We Value Your Input')}</h2>
+        <p className="text-lg text-muted-foreground max-w-xl mx-auto">
           {t('survey.description', 'Please take a moment to share your thoughts about our upcoming RNBW device.')}
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="bg-card p-8 rounded-lg shadow-md space-y-8">
+      <form onSubmit={handleSubmit(onSubmit)} className="form-card p-8 space-y-10">
         {submitError && (
-          <div className="p-4 bg-destructive/10 text-destructive border border-destructive/20 rounded-md">
+          <div className="p-4 bg-destructive/10 text-destructive border border-destructive/20 rounded-md animate-in fade-in zoom-in duration-300">
             <p>{submitError}</p>
           </div>
         )}
 
         {/* Contact Information */}
-        <div className="space-y-6">
-          <h3 className="text-lg font-medium border-b pb-2">
+        <div className={cn(
+          "space-y-6 card-gradient animate-in fade-in duration-300", 
+          activeSection === 0 ? "border-primary/30" : ""
+        )}>
+          <h3 className="text-lg font-medium text-primary border-b border-border pb-2 flex items-center">
             {t('section.contactInfo', 'Contact Information')}
           </h3>
 
           {/* Name field */}
           <div className="space-y-3">
-            <Label htmlFor="name" className="text-base font-medium">
+            <Label htmlFor="name" className="text-base font-medium flex items-center">
+              <User className="h-4 w-4 mr-2 text-primary/70" />
               {t('field.name', 'Name')}
-              <span className="text-red-500 ml-1">*</span>
+              <span className="text-destructive ml-1">*</span>
             </Label>
             <Input
               id="name"
               type="text"
               placeholder={t('field.namePlaceholder', 'Your name')}
               {...register('name')}
+              className="input-field"
+              onFocus={() => setActiveSection(0)}
             />
             {errors.name && (
-              <p className="text-sm font-medium text-destructive">{errors.name.message as string}</p>
+              <p className="text-sm font-medium text-destructive flex items-center">
+                {errors.name.message as string}
+              </p>
             )}
           </div>
 
           {/* Email field */}
           <div className="space-y-3">
-            <Label htmlFor="email" className="text-base font-medium">
+            <Label htmlFor="email" className="text-base font-medium flex items-center">
+              <Mail className="h-4 w-4 mr-2 text-primary/70" />
               {t('field.email', 'Email')}
-              <span className="text-red-500 ml-1">*</span>
+              <span className="text-destructive ml-1">*</span>
             </Label>
             <Input
               id="email"
               type="email"
               placeholder={t('field.emailPlaceholder', 'your.email@example.com')}
               {...register('email')}
+              className="input-field"
+              onFocus={() => setActiveSection(0)}
             />
             {errors.email && (
-              <p className="text-sm font-medium text-destructive">{errors.email.message as string}</p>
+              <p className="text-sm font-medium text-destructive flex items-center">
+                {errors.email.message as string}
+              </p>
             )}
           </div>
         </div>
 
         {/* Survey Sections */}
         {surveyData.map((section, sectionIndex) => (
-          <div key={section.id} className="space-y-6">
-            <h3 className="text-lg font-medium border-b pb-2">
+          <div 
+            key={section.id} 
+            className={cn(
+              "card-gradient space-y-6 animate-in fade-in duration-300", 
+              activeSection === sectionIndex + 1 ? "border-primary/30" : ""
+            )}
+          >
+            <h3 className="text-lg font-medium text-primary border-b border-border pb-2">
               {t(section.titleKey, section.defaultTitle, currentLocale)}
             </h3>
-            <div className="space-y-4">
+            <div className="space-y-6">
               {section.questions.map((question, questionIndex) => 
-                renderQuestion(question, sectionIndex, questionIndex)
+                React.cloneElement(
+                  renderQuestion(question, sectionIndex, questionIndex) as React.ReactElement,
+                  { 
+                    onFocus: () => setActiveSection(sectionIndex + 1) 
+                  }
+                )
               )}
             </div>
           </div>
         ))}
 
-        <div className="pt-4">
+        <div className="pt-6">
           <Button
             type="submit"
-            className="w-full"
+            className="w-full h-12 text-base font-medium group"
             disabled={isSubmitting}
           >
             {isSubmitting ? (
               <span className="flex items-center justify-center">
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
+                <Loader2 className="animate-spin mr-2 h-5 w-5" />
                 {t('survey.submitting', 'Submitting...')}
               </span>
             ) : (
-              t('survey.submit', 'Submit Survey')
+              <span className="flex items-center justify-center">
+                {t('survey.submit', 'Submit Survey')}
+                <Send className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              </span>
             )}
           </Button>
         </div>
