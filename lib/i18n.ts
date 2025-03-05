@@ -9,12 +9,13 @@ export type Translations = {
 };
 
 // Define available locales
-export const DEFAULT_LOCALE = 'en';
-export const LOCALES = ['en']; // Add more languages here as they become available
+export const DEFAULT_LOCALE = 'ru';
+export const LOCALES = ['ru', 'en']; // Add more languages here as they become available
 
 // Store translations for each locale
 const translations: { [locale: string]: Translations } = {
-  en: {}, // English translations (can be populated later)
+  ru: {},  // Russian translations
+  en: {},  // English translations (to be added later)
   // Add more languages here as they become available
 };
 
@@ -26,14 +27,10 @@ const translations: { [locale: string]: Translations } = {
  * @returns Translated text or default text
  */
 export function t(key: string, defaultText: string, locale = DEFAULT_LOCALE): string {
-  // If the locale doesn't exist in our translations, use the default locale
-  if (!translations[locale]) {
-    locale = DEFAULT_LOCALE;
+  if (!translations[locale] || !translations[locale][key]) {
+    return defaultText;
   }
-  
-  // If the key exists in the translations for the locale, return the translation
-  // Otherwise, return the default text
-  return translations[locale][key] || defaultText;
+  return translations[locale][key];
 }
 
 /**
@@ -42,7 +39,7 @@ export function t(key: string, defaultText: string, locale = DEFAULT_LOCALE): st
  * @param data Translations object
  */
 export function setTranslations(locale: string, data: Translations): void {
-  translations[locale] = { ...translations[locale], ...data };
+  translations[locale] = data;
 }
 
 /**
@@ -52,9 +49,10 @@ export function setTranslations(locale: string, data: Translations): void {
  * @returns Formatted string (e.g., "Hello, World!")
  */
 export function formatString(text: string, variables: { [key: string]: string | number }): string {
-  return text.replace(/{(\w+)}/g, (match, key) => {
-    return variables[key] !== undefined ? String(variables[key]) : match;
-  });
+  return Object.entries(variables).reduce(
+    (result, [key, value]) => result.replace(new RegExp(`{${key}}`, 'g'), String(value)),
+    text
+  );
 }
 
 // Export additional helpers for future use

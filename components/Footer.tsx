@@ -14,7 +14,7 @@ const Footer: React.FC = () => {
               <span className="text-lg font-bold bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-transparent">RNBW</span>
             </div>
             <p className="text-muted-foreground">
-              Pioneering the next generation of personal technology devices.
+              Создаем революционные технологии для парфюмерии будущего.
             </p>
             <div className="flex space-x-4">
               <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
@@ -37,27 +37,27 @@ const Footer: React.FC = () => {
           </div>
           
           <div>
-            <h3 className="text-lg font-medium mb-4">Product</h3>
+            <h3 className="text-lg font-medium mb-4">Продукт</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Features</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Pricing</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Pre-order</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">FAQ</a></li>
+              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Функции</a></li>
+              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Цены</a></li>
+              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Предзаказ</a></li>
+              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Часто задаваемые вопросы</a></li>
             </ul>
           </div>
           
           <div>
-            <h3 className="text-lg font-medium mb-4">Company</h3>
+            <h3 className="text-lg font-medium mb-4">Компания</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">About</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Blog</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Careers</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Press</a></li>
+              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">О нас</a></li>
+              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Блог</a></li>
+              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Карьера</a></li>
+              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Пресса</a></li>
             </ul>
           </div>
           
           <div>
-            <h3 className="text-lg font-medium mb-4">Contact</h3>
+            <h3 className="text-lg font-medium mb-4">Контакты</h3>
             <ul className="space-y-2">
               <li className="flex items-center space-x-2">
                 <Mail className="h-4 w-4 text-muted-foreground" />
@@ -73,11 +73,11 @@ const Footer: React.FC = () => {
         
         <div className="border-t border-accent/10 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} RNBW Technologies. All rights reserved.
+            &copy; {new Date().getFullYear()} RNBW Technologies. Все права защищены.
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0">
-            <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Privacy Policy</a>
-            <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Terms of Service</a>
+            <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Политика конфиденциальности</a>
+            <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Условия использования</a>
             <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Cookies</a>
           </div>
         </div>
