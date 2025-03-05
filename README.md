@@ -1,122 +1,120 @@
 # RNBW Survey Landing Page
 
-A modern, responsive landing page with a survey form to assess user interest in the new RNBW device. The survey responses are automatically emailed to a designated recipient upon submission.
+This project is a landing page with a survey form for the RNBW device, built with modern web technologies to collect user feedback efficiently.
 
-## Project Overview
+## Technologies Used
 
-This project implements a user-friendly landing page that showcases the RNBW device and collects user feedback through a survey. Key features include:
+- **Next.js**: A React framework for production-grade applications
+- **TypeScript**: For type safety and better developer experience
+- **Tailwind CSS**: For utility-first styling
+- **Shadcn UI**: Beautiful, accessible UI components built with Radix UI and Tailwind CSS
+- **React Hook Form**: For efficient form state management
+- **Zod**: For form validation
+- **Nodemailer**: For sending survey responses via email
 
-- Responsive design that works on desktop, tablet, and mobile devices
-- Interactive survey form with various question types
-- Client-side validation of user inputs
-- Email notification system for survey responses
-- Modern UI with clean design and visual feedback
+## Features
 
-## Technology Stack
-
-### Frontend
-- **Framework**: [Next.js](https://nextjs.org/) (React framework with SSR support)
-- **Language**: TypeScript for type safety and better developer experience
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/) for utility-first styling
-- **Form Handling**: [React Hook Form](https://react-hook-form.com/) for efficient form validation
-- **UI Components**: Custom components with accessibility in mind
-
-### Backend
-- **API Routes**: Next.js API routes for serverless functionality
-- **Email Service**: [Nodemailer](https://nodemailer.com/) for sending emails
-- **Validation**: [Zod](https://github.com/colinhacks/zod) for schema validation
-
-### Deployment
-- **Hosting**: [Vercel](https://vercel.com/) (seamless integration with Next.js)
-- **CI/CD**: Automated deployment through GitHub integration
-
-## Development Plan
-
-### Phase 1: Project Setup & Design (1 week)
-- [x] Initialize GitHub repository
-- [ ] Set up Next.js project with TypeScript
-- [ ] Configure Tailwind CSS
-- [ ] Create responsive layout structure
-- [ ] Design UI components (header, form elements, feedback messages)
-- [ ] Implement basic page routing
-
-### Phase 2: Frontend Implementation (1 week)
-- [ ] Develop the header section with device image and description
-- [ ] Create the survey form with all required question types
-- [ ] Implement client-side form validation
-- [ ] Add loading indicators and user feedback components
-- [ ] Ensure responsive design across all device sizes
-- [ ] Implement accessibility features (ARIA attributes, keyboard navigation)
-
-### Phase 3: Backend & Integration (1 week)
-- [ ] Create API endpoint for form submission
-- [ ] Implement server-side validation
-- [ ] Set up email service using Nodemailer
-- [ ] Configure email templates for survey responses
-- [ ] Connect frontend form to backend API
-- [ ] Implement error handling and logging
-
-### Phase 4: Testing & Deployment (1 week)
-- [ ] Write unit tests for components and API endpoints
-- [ ] Perform integration testing
-- [ ] Conduct cross-browser and cross-device testing
-- [ ] Optimize performance (lazy loading, code splitting)
-- [ ] Set up CI/CD pipeline
-- [ ] Deploy to production environment
+- **Responsive Design**: Works on all devices from mobile to desktop
+- **Dynamic Survey Form**: Configurable survey questions stored separately from UI code
+- **Form Validation**: Client-side validation with informative error messages
+- **Email Notification**: Sends survey responses to an admin email
+- **Localization Ready**: Built with internationalization (i18n) support for future language translations
+- **Modern UI Components**: Clean and accessible UI built with Shadcn UI components
 
 ## Getting Started
 
 ### Prerequisites
-- Node.js 16.x or later
-- npm or yarn package manager
+
+- Node.js 18.x or later
+- npm or yarn
 
 ### Installation
+
 1. Clone the repository:
    ```bash
-   git clone https://github.com/pavelnovikau/rnbw_form.git
-   cd rnbw_form
+   git clone https://github.com/your-username/rnbw-form.git
+   cd rnbw-form
    ```
 
 2. Install dependencies:
    ```bash
    npm install
-   # or
-   yarn install
    ```
 
-3. Create a `.env.local` file with necessary environment variables:
+3. Create a `.env.local` file based on the provided `.env.local.example`:
+   ```bash
+   cp .env.local.example .env.local
    ```
-   EMAIL_SERVER=smtp.example.com
-   EMAIL_PORT=587
-   EMAIL_USER=your-email@example.com
-   EMAIL_PASSWORD=your-password
-   EMAIL_RECIPIENT=recipient@example.com
-   ```
+   
+4. Update the environment variables in `.env.local` with your email server details.
 
-4. Start the development server:
+5. Start the development server:
    ```bash
    npm run dev
-   # or
-   yarn dev
    ```
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
+6. Open [http://localhost:3000](http://localhost:3000) to view the survey form.
 
 ## Project Structure
+
 ```
 rnbw_form/
 ├── components/        # React components
-├── pages/             # Next.js pages and API routes
-├── public/            # Static assets (images, favicon)
-├── styles/            # Global styles and Tailwind config
-├── lib/               # Utility functions and services
-├── types/             # TypeScript type definitions
-├── tests/             # Test files
-└── README.md          # Project documentation
+│   ├── ui/            # Shadcn UI components
+│   ├── Header.tsx     # Site header component
+│   ├── Footer.tsx     # Site footer component
+│   └── SurveyForm.tsx # Main survey form component
+├── lib/               # Utility functions and data
+│   ├── i18n.ts        # Internationalization utilities
+│   ├── surveyQuestions.ts # Survey questions data
+│   └── utils.ts       # General utility functions
+├── pages/             # Next.js pages
+│   ├── api/           # API routes
+│   │   └── submit-survey.ts # Endpoint for form submission
+│   └── index.tsx      # Landing page
+├── public/            # Static assets
+├── styles/            # Global styles
+└── ...                # Configuration files
 ```
 
-## License
-This project is open source and available under the [MIT License](LICENSE).
+## Survey Form Structure
 
-## Contact
-For any questions or feedback regarding this project, please contact [your-email@example.com]. 
+The survey form is built using a flexible and maintainable approach:
+
+- Survey questions are defined in `lib/surveyQuestions.ts` separate from the UI code
+- Each question has:
+  - A unique ID
+  - A question type (radio, checkbox, text, textarea)
+  - Localization keys for future translations
+  - Optional answer choices for radio/checkbox questions
+- Questions are grouped into logical sections
+
+## Adding or Modifying Survey Questions
+
+To add or modify questions, update the `surveyData` array in `lib/surveyQuestions.ts`. The form will automatically generate the appropriate input fields and validation rules based on this data.
+
+## Localization Support
+
+The application is designed with future localization in mind:
+
+- All user-facing text uses the `t()` function from `lib/i18n.ts`
+- Each text has a key and a default text (English)
+- To add a new language, add it to the `LOCALES` array and provide translations
+
+## Future Enhancements
+
+- User analytics integration
+- Dashboard for viewing survey responses
+- Additional question types (rating scales, etc.)
+- Theme customization
+- Full localization implementation for multiple languages
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- Built with [Next.js](https://nextjs.org/)
+- UI components from [Shadcn UI](https://ui.shadcn.com/)
+- Icons from [Lucide](https://lucide.dev/) 

@@ -1,9 +1,17 @@
 import React, { useState } from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { surveyData } from '@/lib/surveyQuestions';
 import { t } from '@/lib/i18n';
+
+// Import Shadcn UI components
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Checkbox } from '@/components/ui/checkbox';
 
 // Create a dynamic schema based on the survey data
 const createSurveySchema = () => {
@@ -65,6 +73,7 @@ const SurveyForm: React.FC = () => {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
     reset,
   } = useForm<SurveyFormData>({
@@ -109,78 +118,92 @@ const SurveyForm: React.FC = () => {
     switch (question.type) {
       case 'radio':
         return (
-          <div key={questionId} className="mb-6">
-            <label className="form-label">
+          <div key={questionId} className="mb-6 space-y-3">
+            <Label className="text-base font-medium">
               {t(question.titleKey, question.defaultTitle, currentLocale)}
               {isRequired && <span className="text-red-500 ml-1">*</span>}
-            </label>
-            <div className="mt-2 space-y-2">
-              {question.options?.map((option: any) => (
-                <div key={option.id} className="flex items-center">
-                  <input
-                    id={`${questionId}-${option.id}`}
-                    type="radio"
-                    className="h-4 w-4 text-primary-600 border-gray-300"
-                    value={option.id}
-                    {...register(questionId)}
-                  />
-                  <label htmlFor={`${questionId}-${option.id}`} className="ml-3 text-sm text-gray-700">
-                    {t(option.labelKey, option.defaultText, currentLocale)}
-                  </label>
-                </div>
-              ))}
-            </div>
+            </Label>
+            <Controller
+              name={questionId as any}
+              control={control}
+              render={({ field }) => (
+                <RadioGroup
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  className="space-y-2 mt-2"
+                >
+                  {question.options?.map((option: any) => (
+                    <div key={option.id} className="flex items-center space-x-2">
+                      <RadioGroupItem id={`${questionId}-${option.id}`} value={option.id} />
+                      <Label htmlFor={`${questionId}-${option.id}`} className="font-normal">
+                        {t(option.labelKey, option.defaultText, currentLocale)}
+                      </Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              )}
+            />
             {hasError && (
-              <p className="error-message">{errors[questionId]?.message}</p>
+              <p className="text-sm font-medium text-destructive mt-1">{errors[questionId]?.message as string}</p>
             )}
           </div>
         );
       
       case 'checkbox':
         return (
-          <div key={questionId} className="mb-6">
-            <label className="form-label">
+          <div key={questionId} className="mb-6 space-y-3">
+            <Label className="text-base font-medium">
               {t(question.titleKey, question.defaultTitle, currentLocale)}
               {isRequired && <span className="text-red-500 ml-1">*</span>}
-            </label>
-            <div className="mt-2 space-y-2">
+            </Label>
+            <div className="space-y-2 mt-2">
               {question.options?.map((option: any) => (
-                <div key={option.id} className="flex items-center">
-                  <input
-                    id={`${questionId}-${option.id}`}
-                    type="checkbox"
-                    className="h-4 w-4 text-primary-600 border-gray-300 rounded"
-                    value={option.id}
-                    {...register(questionId)}
+                <div key={option.id} className="flex items-center space-x-2">
+                  <Controller
+                    name={questionId as any}
+                    control={control}
+                    defaultValue={[]}
+                    render={({ field }) => {
+                      return (
+                        <Checkbox
+                          id={`${questionId}-${option.id}`}
+                          checked={field.value?.includes(option.id)}
+                          onCheckedChange={(checked) => {
+                            const updatedValue = checked
+                              ? [...(field.value || []), option.id]
+                              : (field.value || []).filter((value: string) => value !== option.id);
+                            field.onChange(updatedValue);
+                          }}
+                        />
+                      );
+                    }}
                   />
-                  <label htmlFor={`${questionId}-${option.id}`} className="ml-3 text-sm text-gray-700">
+                  <Label htmlFor={`${questionId}-${option.id}`} className="font-normal">
                     {t(option.labelKey, option.defaultText, currentLocale)}
-                  </label>
+                  </Label>
                 </div>
               ))}
             </div>
             {hasError && (
-              <p className="error-message">{errors[questionId]?.message}</p>
+              <p className="text-sm font-medium text-destructive mt-1">{errors[questionId]?.message as string}</p>
             )}
           </div>
         );
         
       case 'textarea':
         return (
-          <div key={questionId} className="mb-6">
-            <label htmlFor={questionId} className="form-label">
+          <div key={questionId} className="mb-6 space-y-3">
+            <Label htmlFor={questionId} className="text-base font-medium">
               {t(question.titleKey, question.defaultTitle, currentLocale)}
               {isRequired && <span className="text-red-500 ml-1">*</span>}
-            </label>
-            <textarea
+            </Label>
+            <Textarea
               id={questionId}
-              rows={4}
-              className="input-field border"
               placeholder={`${t(question.titleKey, question.defaultTitle, currentLocale)}...`}
               {...register(questionId)}
-            ></textarea>
+            />
             {hasError && (
-              <p className="error-message">{errors[questionId]?.message}</p>
+              <p className="text-sm font-medium text-destructive mt-1">{errors[questionId]?.message as string}</p>
             )}
           </div>
         );
@@ -188,20 +211,19 @@ const SurveyForm: React.FC = () => {
       case 'text':
       default:
         return (
-          <div key={questionId} className="mb-6">
-            <label htmlFor={questionId} className="form-label">
+          <div key={questionId} className="mb-6 space-y-3">
+            <Label htmlFor={questionId} className="text-base font-medium">
               {t(question.titleKey, question.defaultTitle, currentLocale)}
               {isRequired && <span className="text-red-500 ml-1">*</span>}
-            </label>
-            <input
+            </Label>
+            <Input
               id={questionId}
               type="text"
-              className="input-field border"
               placeholder={`${t(question.titleKey, question.defaultTitle, currentLocale)}...`}
               {...register(questionId)}
             />
             {hasError && (
-              <p className="error-message">{errors[questionId]?.message}</p>
+              <p className="text-sm font-medium text-destructive mt-1">{errors[questionId]?.message as string}</p>
             )}
           </div>
         );
@@ -210,23 +232,26 @@ const SurveyForm: React.FC = () => {
 
   if (submitSuccess) {
     return (
-      <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-md">
+      <div className="max-w-2xl mx-auto bg-card p-8 rounded-lg shadow-md">
         <div className="text-center">
-          <svg className="mx-auto h-12 w-12 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-          </svg>
-          <h2 className="mt-3 text-xl font-medium text-gray-900">
+          <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-green-100">
+            <svg className="h-8 w-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h2 className="mt-3 text-xl font-medium text-foreground">
             {t('survey.thankYou', 'Thank you for your feedback!')}
           </h2>
-          <p className="mt-2 text-gray-500">
+          <p className="mt-2 text-muted-foreground">
             {t('survey.responseRecorded', 'Your responses have been recorded and will help us improve the RNBW device.')}
           </p>
-          <button
+          <Button
             onClick={() => setSubmitSuccess(false)}
-            className="mt-6 btn-secondary"
+            variant="secondary"
+            className="mt-6"
           >
             {t('survey.submitAnother', 'Submit another response')}
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -235,94 +260,92 @@ const SurveyForm: React.FC = () => {
   return (
     <div className="max-w-2xl mx-auto" id="survey-form">
       <div className="text-center mb-10">
-        <h2 className="mb-4">{t('survey.title', 'We Value Your Input')}</h2>
-        <p className="text-lg text-gray-600">
+        <h2 className="text-2xl font-bold mb-4">{t('survey.title', 'We Value Your Input')}</h2>
+        <p className="text-lg text-muted-foreground">
           {t('survey.description', 'Please take a moment to share your thoughts about our upcoming RNBW device.')}
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="bg-white p-8 rounded-lg shadow-md">
+      <form onSubmit={handleSubmit(onSubmit)} className="bg-card p-8 rounded-lg shadow-md space-y-8">
         {submitError && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
-            <p className="text-red-600">{submitError}</p>
+          <div className="p-4 bg-destructive/10 text-destructive border border-destructive/20 rounded-md">
+            <p>{submitError}</p>
           </div>
         )}
 
+        {/* Contact Information */}
         <div className="space-y-6">
-          {/* Contact Information */}
-          <div className="mb-8">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
-              {t('section.contactInfo', 'Contact Information')}
-            </h3>
+          <h3 className="text-lg font-medium border-b pb-2">
+            {t('section.contactInfo', 'Contact Information')}
+          </h3>
 
-            {/* Name field */}
-            <div className="mb-4">
-              <label htmlFor="name" className="form-label">
-                {t('field.name', 'Name')}
-                <span className="text-red-500 ml-1">*</span>
-              </label>
-              <input
-                id="name"
-                type="text"
-                className="input-field border"
-                placeholder={t('field.namePlaceholder', 'Your name')}
-                {...register('name')}
-              />
-              {errors.name && (
-                <p className="error-message">{errors.name.message}</p>
-              )}
-            </div>
-
-            {/* Email field */}
-            <div className="mb-4">
-              <label htmlFor="email" className="form-label">
-                {t('field.email', 'Email')}
-                <span className="text-red-500 ml-1">*</span>
-              </label>
-              <input
-                id="email"
-                type="email"
-                className="input-field border"
-                placeholder={t('field.emailPlaceholder', 'your.email@example.com')}
-                {...register('email')}
-              />
-              {errors.email && (
-                <p className="error-message">{errors.email.message}</p>
-              )}
-            </div>
+          {/* Name field */}
+          <div className="space-y-3">
+            <Label htmlFor="name" className="text-base font-medium">
+              {t('field.name', 'Name')}
+              <span className="text-red-500 ml-1">*</span>
+            </Label>
+            <Input
+              id="name"
+              type="text"
+              placeholder={t('field.namePlaceholder', 'Your name')}
+              {...register('name')}
+            />
+            {errors.name && (
+              <p className="text-sm font-medium text-destructive">{errors.name.message as string}</p>
+            )}
           </div>
 
-          {/* Survey Sections */}
-          {surveyData.map((section, sectionIndex) => (
-            <div key={section.id} className="mb-8">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                {t(section.titleKey, section.defaultTitle, currentLocale)}
-              </h3>
+          {/* Email field */}
+          <div className="space-y-3">
+            <Label htmlFor="email" className="text-base font-medium">
+              {t('field.email', 'Email')}
+              <span className="text-red-500 ml-1">*</span>
+            </Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder={t('field.emailPlaceholder', 'your.email@example.com')}
+              {...register('email')}
+            />
+            {errors.email && (
+              <p className="text-sm font-medium text-destructive">{errors.email.message as string}</p>
+            )}
+          </div>
+        </div>
+
+        {/* Survey Sections */}
+        {surveyData.map((section, sectionIndex) => (
+          <div key={section.id} className="space-y-6">
+            <h3 className="text-lg font-medium border-b pb-2">
+              {t(section.titleKey, section.defaultTitle, currentLocale)}
+            </h3>
+            <div className="space-y-4">
               {section.questions.map((question, questionIndex) => 
                 renderQuestion(question, sectionIndex, questionIndex)
               )}
             </div>
-          ))}
-
-          <div className="pt-4">
-            <button
-              type="submit"
-              className="w-full btn-primary"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <span className="flex items-center justify-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  {t('survey.submitting', 'Submitting...')}
-                </span>
-              ) : (
-                t('survey.submit', 'Submit Survey')
-              )}
-            </button>
           </div>
+        ))}
+
+        <div className="pt-4">
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <span className="flex items-center justify-center">
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                {t('survey.submitting', 'Submitting...')}
+              </span>
+            ) : (
+              t('survey.submit', 'Submit Survey')
+            )}
+          </Button>
         </div>
       </form>
     </div>
