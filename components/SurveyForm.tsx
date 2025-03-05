@@ -2,27 +2,65 @@ import React, { useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { surveyData } from '@/lib/surveyQuestions';
+import { t } from '@/lib/i18n';
 
-// Define the survey form schema
-const surveySchema = z.object({
-  name: z.string().min(1, { message: 'Name is required' }),
-  email: z.string().email({ message: 'Please enter a valid email address' }),
-  interest: z.enum(['very-interested', 'somewhat-interested', 'not-interested'], {
-    required_error: 'Please select your interest level',
-  }),
-  features: z.array(z.string()).min(1, { message: 'Please select at least one feature' }),
-  priceRange: z.enum(['under-100', '100-200', '200-300', 'over-300'], {
-    required_error: 'Please select your preferred price range',
-  }),
-  feedback: z.string().optional(),
-});
+// Create a dynamic schema based on the survey data
+const createSurveySchema = () => {
+  const schemaFields: Record<string, any> = {};
+  
+  // Loop through all sections and questions to build the schema
+  surveyData.forEach(section => {
+    section.questions.forEach(question => {
+      // Different handling based on question type
+      if (question.type === 'radio') {
+        // For radio questions, create an enum with all possible option IDs
+        const optionValues = question.options?.map(opt => opt.id) || [];
+        schemaFields[question.id] = question.required 
+          ? z.enum(optionValues as [string, ...string[]], {
+              required_error: `Please answer: ${question.defaultTitle}`,
+            })
+          : z.enum(optionValues as [string, ...string[]]).optional();
+      } 
+      else if (question.type === 'checkbox') {
+        // For checkbox questions, create an array schema
+        schemaFields[question.id] = question.required
+          ? z.array(z.string()).min(1, { message: `Please select at least one option for: ${question.defaultTitle}` })
+          : z.array(z.string()).optional();
+      }
+      else if (question.type === 'text') {
+        // For text inputs
+        schemaFields[question.id] = question.required
+          ? z.string().min(1, { message: `Please answer: ${question.defaultTitle}` })
+          : z.string().optional();
+      }
+      else if (question.type === 'textarea') {
+        // For textarea inputs
+        schemaFields[question.id] = question.required
+          ? z.string().min(1, { message: `Please answer: ${question.defaultTitle}` })
+          : z.string().optional();
+      }
+    });
+  });
 
+  // Add contact fields (name and email)
+  schemaFields['name'] = z.string().min(1, { message: 'Name is required' });
+  schemaFields['email'] = z.string().email({ message: 'Please enter a valid email address' });
+
+  return z.object(schemaFields);
+};
+
+// Create the survey schema
+const surveySchema = createSurveySchema();
+
+// Define the type for form data from the schema
 type SurveyFormData = z.infer<typeof surveySchema>;
 
 const SurveyForm: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const [currentLocale, setCurrentLocale] = useState('en'); // For future localization
 
   const {
     register,
@@ -62,6 +100,114 @@ const SurveyForm: React.FC = () => {
     }
   };
 
+  // Render a question based on its type
+  const renderQuestion = (question: any, sectionIndex: number, questionIndex: number) => {
+    const questionId = question.id;
+    const isRequired = question.required;
+    const hasError = errors[questionId];
+    
+    switch (question.type) {
+      case 'radio':
+        return (
+          <div key={questionId} className="mb-6">
+            <label className="form-label">
+              {t(question.titleKey, question.defaultTitle, currentLocale)}
+              {isRequired && <span className="text-red-500 ml-1">*</span>}
+            </label>
+            <div className="mt-2 space-y-2">
+              {question.options?.map((option: any) => (
+                <div key={option.id} className="flex items-center">
+                  <input
+                    id={`${questionId}-${option.id}`}
+                    type="radio"
+                    className="h-4 w-4 text-primary-600 border-gray-300"
+                    value={option.id}
+                    {...register(questionId)}
+                  />
+                  <label htmlFor={`${questionId}-${option.id}`} className="ml-3 text-sm text-gray-700">
+                    {t(option.labelKey, option.defaultText, currentLocale)}
+                  </label>
+                </div>
+              ))}
+            </div>
+            {hasError && (
+              <p className="error-message">{errors[questionId]?.message}</p>
+            )}
+          </div>
+        );
+      
+      case 'checkbox':
+        return (
+          <div key={questionId} className="mb-6">
+            <label className="form-label">
+              {t(question.titleKey, question.defaultTitle, currentLocale)}
+              {isRequired && <span className="text-red-500 ml-1">*</span>}
+            </label>
+            <div className="mt-2 space-y-2">
+              {question.options?.map((option: any) => (
+                <div key={option.id} className="flex items-center">
+                  <input
+                    id={`${questionId}-${option.id}`}
+                    type="checkbox"
+                    className="h-4 w-4 text-primary-600 border-gray-300 rounded"
+                    value={option.id}
+                    {...register(questionId)}
+                  />
+                  <label htmlFor={`${questionId}-${option.id}`} className="ml-3 text-sm text-gray-700">
+                    {t(option.labelKey, option.defaultText, currentLocale)}
+                  </label>
+                </div>
+              ))}
+            </div>
+            {hasError && (
+              <p className="error-message">{errors[questionId]?.message}</p>
+            )}
+          </div>
+        );
+        
+      case 'textarea':
+        return (
+          <div key={questionId} className="mb-6">
+            <label htmlFor={questionId} className="form-label">
+              {t(question.titleKey, question.defaultTitle, currentLocale)}
+              {isRequired && <span className="text-red-500 ml-1">*</span>}
+            </label>
+            <textarea
+              id={questionId}
+              rows={4}
+              className="input-field border"
+              placeholder={`${t(question.titleKey, question.defaultTitle, currentLocale)}...`}
+              {...register(questionId)}
+            ></textarea>
+            {hasError && (
+              <p className="error-message">{errors[questionId]?.message}</p>
+            )}
+          </div>
+        );
+        
+      case 'text':
+      default:
+        return (
+          <div key={questionId} className="mb-6">
+            <label htmlFor={questionId} className="form-label">
+              {t(question.titleKey, question.defaultTitle, currentLocale)}
+              {isRequired && <span className="text-red-500 ml-1">*</span>}
+            </label>
+            <input
+              id={questionId}
+              type="text"
+              className="input-field border"
+              placeholder={`${t(question.titleKey, question.defaultTitle, currentLocale)}...`}
+              {...register(questionId)}
+            />
+            {hasError && (
+              <p className="error-message">{errors[questionId]?.message}</p>
+            )}
+          </div>
+        );
+    }
+  };
+
   if (submitSuccess) {
     return (
       <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-md">
@@ -69,15 +215,17 @@ const SurveyForm: React.FC = () => {
           <svg className="mx-auto h-12 w-12 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
           </svg>
-          <h2 className="mt-3 text-xl font-medium text-gray-900">Thank you for your feedback!</h2>
+          <h2 className="mt-3 text-xl font-medium text-gray-900">
+            {t('survey.thankYou', 'Thank you for your feedback!')}
+          </h2>
           <p className="mt-2 text-gray-500">
-            Your responses have been recorded and will help us improve the RNBW device.
+            {t('survey.responseRecorded', 'Your responses have been recorded and will help us improve the RNBW device.')}
           </p>
           <button
             onClick={() => setSubmitSuccess(false)}
             className="mt-6 btn-secondary"
           >
-            Submit another response
+            {t('survey.submitAnother', 'Submit another response')}
           </button>
         </div>
       </div>
@@ -87,9 +235,9 @@ const SurveyForm: React.FC = () => {
   return (
     <div className="max-w-2xl mx-auto" id="survey-form">
       <div className="text-center mb-10">
-        <h2 className="mb-4">We Value Your Input</h2>
+        <h2 className="mb-4">{t('survey.title', 'We Value Your Input')}</h2>
         <p className="text-lg text-gray-600">
-          Please take a moment to share your thoughts about our upcoming RNBW device.
+          {t('survey.description', 'Please take a moment to share your thoughts about our upcoming RNBW device.')}
         </p>
       </div>
 
@@ -101,190 +249,60 @@ const SurveyForm: React.FC = () => {
         )}
 
         <div className="space-y-6">
-          {/* Name field */}
-          <div>
-            <label htmlFor="name" className="form-label">
-              Name
-            </label>
-            <input
-              id="name"
-              type="text"
-              className="input-field border"
-              placeholder="Your name"
-              {...register('name')}
-            />
-            {errors.name && (
-              <p className="error-message">{errors.name.message}</p>
-            )}
-          </div>
+          {/* Contact Information */}
+          <div className="mb-8">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              {t('section.contactInfo', 'Contact Information')}
+            </h3>
 
-          {/* Email field */}
-          <div>
-            <label htmlFor="email" className="form-label">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              className="input-field border"
-              placeholder="your.email@example.com"
-              {...register('email')}
-            />
-            {errors.email && (
-              <p className="error-message">{errors.email.message}</p>
-            )}
-          </div>
-
-          {/* Interest level */}
-          <div>
-            <label className="form-label">How interested are you in the RNBW device?</label>
-            <div className="mt-2 space-y-2">
-              <div className="flex items-center">
-                <input
-                  id="very-interested"
-                  type="radio"
-                  className="h-4 w-4 text-primary-600 border-gray-300"
-                  value="very-interested"
-                  {...register('interest')}
-                />
-                <label htmlFor="very-interested" className="ml-3 text-sm text-gray-700">
-                  Very interested
-                </label>
-              </div>
-              <div className="flex items-center">
-                <input
-                  id="somewhat-interested"
-                  type="radio"
-                  className="h-4 w-4 text-primary-600 border-gray-300"
-                  value="somewhat-interested"
-                  {...register('interest')}
-                />
-                <label htmlFor="somewhat-interested" className="ml-3 text-sm text-gray-700">
-                  Somewhat interested
-                </label>
-              </div>
-              <div className="flex items-center">
-                <input
-                  id="not-interested"
-                  type="radio"
-                  className="h-4 w-4 text-primary-600 border-gray-300"
-                  value="not-interested"
-                  {...register('interest')}
-                />
-                <label htmlFor="not-interested" className="ml-3 text-sm text-gray-700">
-                  Not interested
-                </label>
-              </div>
+            {/* Name field */}
+            <div className="mb-4">
+              <label htmlFor="name" className="form-label">
+                {t('field.name', 'Name')}
+                <span className="text-red-500 ml-1">*</span>
+              </label>
+              <input
+                id="name"
+                type="text"
+                className="input-field border"
+                placeholder={t('field.namePlaceholder', 'Your name')}
+                {...register('name')}
+              />
+              {errors.name && (
+                <p className="error-message">{errors.name.message}</p>
+              )}
             </div>
-            {errors.interest && (
-              <p className="error-message">{errors.interest.message}</p>
-            )}
-          </div>
 
-          {/* Features */}
-          <div>
-            <label className="form-label">Which features are most important to you? (Select all that apply)</label>
-            <div className="mt-2 space-y-2">
-              <div className="flex items-center">
-                <input
-                  id="feature-design"
-                  type="checkbox"
-                  className="h-4 w-4 text-primary-600 border-gray-300 rounded"
-                  value="design"
-                  {...register('features')}
-                />
-                <label htmlFor="feature-design" className="ml-3 text-sm text-gray-700">
-                  Sleek design and portability
-                </label>
-              </div>
-              <div className="flex items-center">
-                <input
-                  id="feature-battery"
-                  type="checkbox"
-                  className="h-4 w-4 text-primary-600 border-gray-300 rounded"
-                  value="battery"
-                  {...register('features')}
-                />
-                <label htmlFor="feature-battery" className="ml-3 text-sm text-gray-700">
-                  Long battery life
-                </label>
-              </div>
-              <div className="flex items-center">
-                <input
-                  id="feature-connectivity"
-                  type="checkbox"
-                  className="h-4 w-4 text-primary-600 border-gray-300 rounded"
-                  value="connectivity"
-                  {...register('features')}
-                />
-                <label htmlFor="feature-connectivity" className="ml-3 text-sm text-gray-700">
-                  Seamless connectivity with other devices
-                </label>
-              </div>
-              <div className="flex items-center">
-                <input
-                  id="feature-ai"
-                  type="checkbox"
-                  className="h-4 w-4 text-primary-600 border-gray-300 rounded"
-                  value="ai"
-                  {...register('features')}
-                />
-                <label htmlFor="feature-ai" className="ml-3 text-sm text-gray-700">
-                  AI-powered capabilities
-                </label>
-              </div>
-              <div className="flex items-center">
-                <input
-                  id="feature-customization"
-                  type="checkbox"
-                  className="h-4 w-4 text-primary-600 border-gray-300 rounded"
-                  value="customization"
-                  {...register('features')}
-                />
-                <label htmlFor="feature-customization" className="ml-3 text-sm text-gray-700">
-                  Customizable settings and appearance
-                </label>
-              </div>
+            {/* Email field */}
+            <div className="mb-4">
+              <label htmlFor="email" className="form-label">
+                {t('field.email', 'Email')}
+                <span className="text-red-500 ml-1">*</span>
+              </label>
+              <input
+                id="email"
+                type="email"
+                className="input-field border"
+                placeholder={t('field.emailPlaceholder', 'your.email@example.com')}
+                {...register('email')}
+              />
+              {errors.email && (
+                <p className="error-message">{errors.email.message}</p>
+              )}
             </div>
-            {errors.features && (
-              <p className="error-message">{errors.features.message}</p>
-            )}
           </div>
 
-          {/* Price Range */}
-          <div>
-            <label htmlFor="priceRange" className="form-label">
-              What price range would you consider reasonable for this device?
-            </label>
-            <select
-              id="priceRange"
-              className="input-field border"
-              {...register('priceRange')}
-            >
-              <option value="">Select a price range</option>
-              <option value="under-100">Under $100</option>
-              <option value="100-200">$100 - $200</option>
-              <option value="200-300">$200 - $300</option>
-              <option value="over-300">Over $300</option>
-            </select>
-            {errors.priceRange && (
-              <p className="error-message">{errors.priceRange.message}</p>
-            )}
-          </div>
-
-          {/* Additional Feedback */}
-          <div>
-            <label htmlFor="feedback" className="form-label">
-              Any additional feedback? (Optional)
-            </label>
-            <textarea
-              id="feedback"
-              rows={4}
-              className="input-field border"
-              placeholder="Share any other thoughts about the RNBW device..."
-              {...register('feedback')}
-            ></textarea>
-          </div>
+          {/* Survey Sections */}
+          {surveyData.map((section, sectionIndex) => (
+            <div key={section.id} className="mb-8">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">
+                {t(section.titleKey, section.defaultTitle, currentLocale)}
+              </h3>
+              {section.questions.map((question, questionIndex) => 
+                renderQuestion(question, sectionIndex, questionIndex)
+              )}
+            </div>
+          ))}
 
           <div className="pt-4">
             <button
@@ -298,10 +316,10 @@ const SurveyForm: React.FC = () => {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Submitting...
+                  {t('survey.submitting', 'Submitting...')}
                 </span>
               ) : (
-                'Submit Survey'
+                t('survey.submit', 'Submit Survey')
               )}
             </button>
           </div>
