@@ -33,25 +33,60 @@ export const surveyData: SurveySection[] = [
       {
         id: 'name',
         type: 'text',
-        title: 'Как тебя зовут:',
-        required: true
+        title: 'Как тебя зовут:'
       },
       {
-        id: 'occupation',
+        id: 'age',
         type: 'text',
-        title: 'Чем занимаешься?',
+        title: 'Сколько тебе лет (по паспорту). Да ладно, не говори, если не хочешь:'
       },
       {
         id: 'fragrance_use',
         type: 'radio',
-        title: 'Как часто ты пользуешься ароматами?',
+        title: 'Как часто ты пользуешься парфюмерией:',
         options: [
-          { value: 'daily', label: 'Ежедневно', description: 'Пользуюсь каждый день' },
-          { value: 'often', label: 'Часто', description: 'Несколько раз в неделю' },
-          { value: 'sometimes', label: 'Иногда', description: 'По особым случаям' },
-          { value: 'rarely', label: 'Редко', description: 'Практически не пользуюсь' }
-        ],
-        required: true
+          { value: 'daily', label: 'Почти каждый день' },
+          { value: 'weekly', label: 'Почти каждую неделю' },
+          { value: 'sometimes', label: 'Время от времени' }
+        ]
+      },
+      {
+        id: 'gender',
+        type: 'radio',
+        title: 'Мне кажется, что я:',
+        options: [
+          { value: 'female', label: 'Женщина' },
+          { value: 'male', label: 'Мужчина' },
+          { value: 'unknown', label: 'Да хрен его знает' },
+          { value: 'private', label: 'Вас это волновать не должно' }
+        ]
+      },
+      {
+        id: 'bottles_bought',
+        type: 'radio',
+        title: 'Сколько бутылочек парфюма ты купил(а) за последний год:',
+        options: [
+          { value: 'few', label: '1-2 бутылочки' },
+          { value: 'some', label: '3-4 бутылочки' },
+          { value: 'many', label: 'А кто их считает?' }
+        ]
+      },
+      {
+        id: 'important_factors',
+        type: 'checkbox',
+        title: 'Когда я выбираю парфюм мне важно:',
+        options: [
+          { value: 'brand', label: 'Бренд' },
+          { value: 'design', label: 'Дизайн коробочки и бутылочки' },
+          { value: 'fragrance', label: 'Аромат' },
+          { value: 'price', label: 'Цена' },
+          { value: 'reviews', label: 'Что я про него слышал(а) от других' }
+        ]
+      },
+      {
+        id: 'other_factors',
+        type: 'text',
+        title: 'Другое:'
       }
     ]
   },
@@ -60,35 +95,40 @@ export const surveyData: SurveySection[] = [
     title: 'Устройство',
     questions: [
       {
-        id: 'device_looks',
-        type: 'textarea',
-        title: 'Как тебе внешний вид устройства?',
-        description: 'Поделись впечатлениями о дизайне, материалах и общем впечатлении',
-        required: true
+        id: 'ai_feature',
+        type: 'radio',
+        title: 'Наше замечательное устройство может с помощью искусственного интеллекта и с вашей помощью подстраиваться под погоду, ваше настроение, ваше расписание или под время суток и делать парфюм, который идеально подходит именно к этому моменту. Как вы думаете:',
+        options: [
+          { value: 'awesome', label: 'Это офигенно!' },
+          { value: 'cool', label: 'Это прикольно!' },
+          { value: 'maybe', label: 'Ну, наверное, я бы таким пользовался' },
+          { value: 'unclear', label: 'Непонятно зачем и кому это надо' },
+          { value: 'nonsense', label: 'Бред какой-то' }
+        ]
       },
       {
-        id: 'device_place',
+        id: 'unique_feature',
         type: 'radio',
-        title: 'Где бы ты разместил(а) это устройство у себя дома?',
+        title: 'Это устройство может сделать УНИКАЛЬНЫЙ парфюм, которого больше ни у кого нет. Как вы думаете:',
         options: [
-          { value: 'bathroom', label: 'В ванной комнате' },
-          { value: 'bedroom', label: 'В спальне' },
-          { value: 'living_room', label: 'В гостиной' },
-          { value: 'hall', label: 'В прихожей' },
-          { value: 'other', label: 'Другое место' }
-        ],
-        required: true
+          { value: 'awesome', label: 'Это офигенно!' },
+          { value: 'cool', label: 'Это прикольно!' },
+          { value: 'maybe', label: 'Ну, наверное, я бы таким пользовался' },
+          { value: 'unclear', label: 'Непонятно зачем и кому это надо' },
+          { value: 'nonsense', label: 'Бред какой-то' }
+        ]
       },
       {
-        id: 'compact_device',
+        id: 'compact_feature',
         type: 'radio',
-        title: 'Хотел(а) бы ты, чтобы была более компактная модель устройства?',
+        title: 'Небольшая коробочка, размер с толстую книгу, стоит на вашей полочке и при этом содержит 1001 (тысяча один) РАЗНЫХ бутылочек парфюма. Как вы думаете:',
         options: [
-          { value: 'yes', label: 'Да, предпочитаю меньший размер' },
-          { value: 'no', label: 'Нет, текущий размер оптимален' },
-          { value: 'depends', label: 'Зависит от функциональности' }
-        ],
-        required: true
+          { value: 'awesome', label: 'Это офигенно!' },
+          { value: 'cool', label: 'Это прикольно!' },
+          { value: 'maybe', label: 'Ну, наверное, я бы таким пользовался' },
+          { value: 'unclear', label: 'Непонятно зачем и кому это надо' },
+          { value: 'nonsense', label: 'Бред какой-то' }
+        ]
       }
     ]
   },
@@ -97,36 +137,64 @@ export const surveyData: SurveySection[] = [
     title: 'Функции',
     questions: [
       {
-        id: 'important_features',
-        type: 'checkbox',
-        title: 'Какие функции устройства для тебя наиболее важны?',
-        options: [
-          { value: 'smart_mixing', label: 'Умное смешивание ароматов' },
-          { value: 'app_control', label: 'Управление через мобильное приложение' },
-          { value: 'scheduling', label: 'Планирование расписания ароматов' },
-          { value: 'personalization', label: 'Персонализация ароматов' },
-          { value: 'mood_matching', label: 'Подбор аромата под настроение' },
-          { value: 'voice_control', label: 'Голосовое управление' }
-        ],
-        required: true
-      },
-      {
-        id: 'missing_features',
-        type: 'textarea',
-        title: 'Какие функции ты бы добавил(а) в устройство?',
-        description: 'Не стесняйся предлагать самые смелые идеи'
-      },
-      {
-        id: 'app_importance',
+        id: 'game_feature',
         type: 'radio',
-        title: 'Насколько важно для тебя наличие мобильного приложения для устройства?',
+        title: 'Возможно это несколько неожиданно, но кроме всего прочего устройство может развлекать и обучать вас. В нем есть режим игры, где коробочка выдаёт случайный запах, один для начала и пять, если вы хорошо разбираетесь в запахах, а вам надо угадать был это аромат розы, табака или пачули. За правильный ответ вы получаете баллы, чем сложнее, тем больше. Баллы можно обменять на другую косметику.',
         options: [
-          { value: 'very_important', label: 'Очень важно' },
-          { value: 'important', label: 'Важно' },
-          { value: 'neutral', label: 'Нейтрально' },
-          { value: 'not_important', label: 'Не важно' }
-        ],
-        required: true
+          { value: 'awesome', label: 'Это офигенно!' },
+          { value: 'cool', label: 'Это прикольно!' },
+          { value: 'maybe', label: 'Ну, наверное, я бы таким пользовался' },
+          { value: 'unclear', label: 'Непонятно зачем и кому это надо' },
+          { value: 'nonsense', label: 'Бред какой-то' }
+        ]
+      },
+      {
+        id: 'expert_feature',
+        type: 'radio',
+        title: 'Если вы стали экспертом в ароматах, то вы можете предъявить это знание миру. Как лучший парфюмер Франции вы можете создать свой запах, дать ему имя и опубликовать в турнирной таблице. Другие пользователи голосуют. Запах недели, месяца или года получает приз.',
+        options: [
+          { value: 'awesome', label: 'Это офигенно!' },
+          { value: 'cool', label: 'Это прикольно!' },
+          { value: 'maybe', label: 'Ну, наверное, я бы таким пользовался' },
+          { value: 'unclear', label: 'Непонятно зачем и кому это надо' },
+          { value: 'nonsense', label: 'Бред какой-то' }
+        ]
+      },
+      {
+        id: 'top_fragrances',
+        type: 'radio',
+        title: 'Или как вам идея интереснее понюхать и пользоваться тем, что уже находится в топе турнирной таблицы? Ароматы созданные лучшими носами мира, подкрепленные тысячами отзывов пользователей, мне кажется, точно не могут пахнуть плохо:',
+        options: [
+          { value: 'awesome', label: 'Это офигенно!' },
+          { value: 'cool', label: 'Это прикольно!' },
+          { value: 'maybe', label: 'Ну, наверное, я бы таким пользовался' },
+          { value: 'unclear', label: 'Непонятно зачем и кому это надо' },
+          { value: 'nonsense', label: 'Бред какой-то' }
+        ]
+      },
+      {
+        id: 'gift_feature',
+        type: 'radio',
+        title: 'А как насчёт того, чтобы создать запах для парфюма и превратить его в уникальный подарок для своего партнера или друга/подруги?',
+        options: [
+          { value: 'awesome', label: 'Это офигенно!' },
+          { value: 'cool', label: 'Это прикольно!' },
+          { value: 'maybe', label: 'Ну, наверное, я бы таким пользовался' },
+          { value: 'unclear', label: 'Непонятно зачем и кому это надо' },
+          { value: 'nonsense', label: 'Бред какой-то' }
+        ]
+      },
+      {
+        id: 'brand_testing',
+        type: 'radio',
+        title: 'Твой любимый бренд выпустил новую туалетную воду, но не ехать же ради этого в магазин. Как насчет того, чтобы понюхать этот аромат дома ведь устройство его легко приготовит?',
+        options: [
+          { value: 'awesome', label: 'Это офигенно!' },
+          { value: 'cool', label: 'Это прикольно!' },
+          { value: 'maybe', label: 'Ну, наверное, я бы таким пользовался' },
+          { value: 'unclear', label: 'Непонятно зачем и кому это надо' },
+          { value: 'nonsense', label: 'Бред какой-то' }
+        ]
       }
     ]
   },
@@ -135,33 +203,40 @@ export const surveyData: SurveySection[] = [
     title: 'Бутылочки',
     questions: [
       {
-        id: 'bottles_design',
-        type: 'textarea',
-        title: 'Как тебе дизайн умных бутылочек?',
-        description: 'Поделись своими впечатлениями о внешнем виде, удобстве использования и т.д.',
-        required: true
+        id: 'smart_bottles',
+        type: 'radio',
+        title: 'Важная часть нашего устройства вот такие бутылочки. Это умные устройства, которые заправляются на день парфюмерией, что вы выбрали, а потом напоминают вам время от времени освежить аромат.',
+        options: [
+          { value: 'awesome', label: 'Это офигенно!' },
+          { value: 'cool', label: 'Это прикольно!' },
+          { value: 'maybe', label: 'Ну, наверное, я бы таким пользовался' },
+          { value: 'unclear', label: 'Непонятно зачем и кому это надо' },
+          { value: 'nonsense', label: 'Бред какой-то' }
+        ]
       },
       {
-        id: 'bottles_count',
+        id: 'eco_friendly',
         type: 'radio',
-        title: 'Сколько разных ароматов (бутылочек) ты хотел(а) бы иметь в устройстве одновременно?',
+        title: 'Бутылочки универсальны и легко могут быть перезаправлены новым ароматом. Вам больше не надо их выкидывать и загрязнять окружающую среду.',
         options: [
-          { value: 'few', label: '3-5 ароматов', description: 'Для создания базовых композиций' },
-          { value: 'medium', label: '6-10 ароматов', description: 'Для создания разнообразных композиций' },
-          { value: 'many', label: 'Более 10 ароматов', description: 'Для максимального разнообразия' }
-        ],
-        required: true
+          { value: 'awesome', label: 'Это офигенно!' },
+          { value: 'cool', label: 'Это прикольно!' },
+          { value: 'maybe', label: 'Ну, наверное, я бы таким пользовался' },
+          { value: 'unclear', label: 'Непонятно зачем и кому это надо' },
+          { value: 'nonsense', label: 'Бред какой-то' }
+        ]
       },
       {
-        id: 'refill_preference',
+        id: 'in_store_scan',
         type: 'radio',
-        title: 'Как бы ты предпочел(ла) пополнять запасы ароматов?',
+        title: 'Вы заходите в парфюмерный магазин, нюхаете аромат, он вам нравится, вы фотографируете коробку и устройство готовит такой же аромат для вас.',
         options: [
-          { value: 'subscription', label: 'Регулярная подписка', description: 'Автоматическая доставка новых ароматов' },
-          { value: 'manual_order', label: 'Заказывать по мере необходимости', description: 'Самостоятельно выбирать и заказывать новые ароматы' },
-          { value: 'retail', label: 'Покупать в магазинах', description: 'Приобретать в розничных точках продаж' }
-        ],
-        required: true
+          { value: 'awesome', label: 'Это офигенно!' },
+          { value: 'cool', label: 'Это прикольно!' },
+          { value: 'maybe', label: 'Ну, наверное, я бы таким пользовался' },
+          { value: 'unclear', label: 'Непонятно зачем и кому это надо' },
+          { value: 'nonsense', label: 'Бред какой-то' }
+        ]
       }
     ]
   },
@@ -170,26 +245,41 @@ export const surveyData: SurveySection[] = [
     title: 'Финал',
     questions: [
       {
-        id: 'price_range',
+        id: 'brand_name',
         type: 'radio',
-        title: 'Какую сумму ты готов(а) потратить на такое устройство?',
+        title: 'Что вы думаете про название RNBW (Rainbow). Это как радуга из ароматов. Полный спектр от бирюзового моря до красной розы.',
         options: [
-          { value: 'low', label: 'До 10 000 рублей' },
-          { value: 'medium', label: '10 000 - 20 000 рублей' },
-          { value: 'high', label: '20 000 - 30 000 рублей' },
-          { value: 'premium', label: 'Более 30 000 рублей' }
-        ],
-        required: true
+          { value: 'great', label: 'Отличное название' },
+          { value: 'ok', label: 'Норм, но я сразу не догнал(а)' },
+          { value: 'musk_kid', label: 'Хорошое название для очередного ребенка Маска' },
+          { value: 'bad', label: 'Херня какая-то' }
+        ]
       },
       {
-        id: 'final_feedback',
-        type: 'textarea',
-        title: 'Есть ли что-то еще, чем ты хотел(а) бы поделиться о концепции устройства?'
+        id: 'expected_price',
+        type: 'radio',
+        title: 'А как вы думаете, когда мы выйдем на рынок, сколько такое устройство должно по вашему стоить (чем точнее вы угадаете цену, тем больше будет скидка)?',
+        options: [
+          { value: 'low', label: '200-300 евро' },
+          { value: 'medium', label: '301-600 евро' },
+          { value: 'high', label: '601 или выше евро' }
+        ]
+      },
+      {
+        id: 'willing_to_pay',
+        type: 'radio',
+        title: 'Со стоимостью разобрались. А вы бы хотели купить себе такое устройство? А сколько бы были готовы за него заплатить вы?',
+        options: [
+          { value: 'not_interested', label: 'Не, мне такое бесплатно не надо' },
+          { value: 'pay_low', label: '200-300 евро' },
+          { value: 'pay_medium', label: '301-600 евро' },
+          { value: 'pay_high', label: '601 или выше евро' }
+        ]
       },
       {
         id: 'email',
         type: 'email',
-        title: 'Твой email для связи (если хочешь получать новости о проекте):',
+        title: 'А вот это уже совсем опционально. Но, если ты хочешь узнать когда выйдёт нашу устройство и получить супер-пупер-мега скидку, то оставь свой email куда тебе эту скидку прислать:',
         description: 'Мы не будем использовать его для спама, только для информации о запуске'
       }
     ]

@@ -3,8 +3,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { ArrowRight, Check, Loader2 } from 'lucide-react';
-import { surveyData, Question, QuestionOption } from '../lib/surveyQuestions';
+import { surveyData, Question, QuestionOption, SurveySection } from '../lib/surveyQuestions';
 import { Locale, t } from '../lib/i18n';
+import { Button } from '../components/ui/button';
 
 // Компонент изображения с анимацией появления
 const SurveyImage = ({ src, alt, className = '' }: { src: string, alt: string, className?: string }) => {
@@ -62,16 +63,72 @@ const SurveyImage = ({ src, alt, className = '' }: { src: string, alt: string, c
   );
 };
 
+// Обновим компонент вопроса, добавив анимации и эффекты
+const QuestionContainer = ({ children, animate = true }: { children: React.ReactNode, animate?: boolean }) => {
+  return (
+    <div className={`p-6 md:p-8 bg-card dark:bg-card/60 shadow-md dark:shadow-lg backdrop-blur-sm 
+                      border border-accent/10 dark:border-accent/20 rounded-2xl mb-8
+                      transition-all duration-500 hover:shadow-xl hover:border-accent/30
+                      ${animate ? 'animate-fadeIn' : ''}`}>
+      {children}
+    </div>
+  );
+};
+
+// Обновим функциональность radio button для более современного вида
+const RadioOption = ({ 
+  id, 
+  name, 
+  value, 
+  checked, 
+  onChange, 
+  label, 
+  description 
+}: {
+  id: string; 
+  name: string; 
+  value: string; 
+  checked: boolean; 
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; 
+  label: string; 
+  description?: string;
+}) => {
+  return (
+    <div className={`relative transition-all duration-300 ease-out p-4 rounded-xl border mb-3
+                     ${checked 
+                       ? 'bg-primary/10 dark:bg-primary/20 border-primary/30 dark:border-primary/40 scale-[1.02] shadow-md' 
+                       : 'border-border hover:border-accent/30 dark:border-border/30 hover:bg-accent/5'}`}>
+      <label htmlFor={id} className="flex items-start space-x-3 cursor-pointer">
+        <div className="flex items-center h-6">
+          <input
+            id={id}
+            name={name}
+            type="radio"
+            value={value}
+            checked={checked}
+            onChange={onChange}
+            className="h-5 w-5 text-primary focus:ring-primary"
+          />
+        </div>
+        <div className="flex-1">
+          <div className="font-medium">{label}</div>
+          {description && (
+            <p className="text-sm text-muted-foreground">{description}</p>
+          )}
+        </div>
+      </label>
+    </div>
+  );
+};
+
 type SurveyFormProps = {
   locale: Locale;
   onSuccess?: () => void;
 };
 
 export function SurveyForm({ locale = 'ru', onSuccess }: SurveyFormProps) {
-  const [activeSection, setActiveSection] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
   
   console.log('SurveyForm: Rendering with locale:', locale);
   console.log('SurveyForm: First section title:', surveyData[0].title);
@@ -82,28 +139,31 @@ export function SurveyForm({ locale = 'ru', onSuccess }: SurveyFormProps) {
     Object.fromEntries(
       surveyData.flatMap(section => 
         section.questions.map(question => {
-          // Базовая схема в зависимости от типа вопроса
-          let schema: any = z.any();
+          let schema: z.ZodTypeAny;
           
-          if (question.type === 'text' || question.type === 'textarea') {
-            schema = question.required 
-              ? z.string().min(1, { message: t('error.required', 'Это поле обязательно для заполнения', locale) })
-              : z.string().optional();
-          } 
+          if (question.type === 'text') {
+            schema = z.string().optional();
+          }
+          else if (question.type === 'textarea') {
+            schema = z.string().optional();
+          }
           else if (question.type === 'email') {
-            schema = question.required
-              ? z.string().min(1, { message: t('error.required', 'Это поле обязательно для заполнения', locale) }).email({ message: t('error.email', 'Пожалуйста, введите корректный email', locale) })
-              : z.string().email({ message: t('error.email', 'Пожалуйста, введите корректный email', locale) }).optional();
+            schema = z.string()
+              .optional()
+              .refine(
+                val => !val || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val),
+                val => ({ message: val ? t('error.email', 'Некорректный email адрес', locale) : '' })
+              );
           }
           else if (question.type === 'checkbox') {
-            schema = question.required
-              ? z.array(z.string()).min(1, { message: t('error.minSelection', 'Пожалуйста, выберите хотя бы один вариант', locale) })
-              : z.array(z.string()).optional();
+            schema = z.array(z.string()).optional();
           }
           else if (question.type === 'radio') {
-            schema = question.required
-              ? z.string({ required_error: t('error.selection', 'Пожалуйста, выберите один из вариантов', locale) })
-              : z.string().optional();
+            schema = z.string().optional();
+          }
+          else {
+            // Fallback for any other types
+            schema = z.any();
           }
           
           return [question.id, schema];
@@ -156,6 +216,9 @@ export function SurveyForm({ locale = 'ru', onSuccess }: SurveyFormProps) {
       setIsSuccess(true);
       if (onSuccess) onSuccess();
       reset();
+      
+      // Прокрутка вверх страницы после успешной отправки
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } 
     catch (error) {
       console.error('Submit error:', error);
@@ -170,24 +233,15 @@ export function SurveyForm({ locale = 'ru', onSuccess }: SurveyFormProps) {
   const resetForm = () => {
     setIsSuccess(false);
     reset();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Функция для навигации между секциями
-  const scrollToSection = (index: number) => {
-    if (index >= 0 && index < surveyData.length) {
-      setActiveSection(index);
-      sectionRefs.current[index]?.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'start' 
-      });
-    }
-  };
-
-  if (isSuccess) {
+  // Компонент для отображения сообщения об успешной отправке
+  const SuccessMessage = ({ resetForm, locale }: { resetForm: () => void, locale: Locale }) => {
     return (
-      <div className="flex flex-col items-center justify-center text-center p-8 gap-6 animate-fade-in">
-        <div className="w-16 h-16 rounded-full bg-accent/20 flex items-center justify-center mb-4">
-          <Check className="h-8 w-8 text-accent" />
+      <div className="flex flex-col items-center justify-center text-center p-8 gap-6 animate-fadeIn">
+        <div className="success-icon-container">
+          <Check className="h-8 w-8 text-white" />
         </div>
         <h2 className="text-2xl font-bold">{t('success.title', 'Спасибо за ваш отзыв!', locale)}</h2>
         <p className="text-muted-foreground max-w-md">
@@ -201,253 +255,246 @@ export function SurveyForm({ locale = 'ru', onSuccess }: SurveyFormProps) {
         </button>
       </div>
     );
+  };
+
+  if (isSuccess) {
+    return (
+      <SuccessMessage resetForm={resetForm} locale={locale} />
+    );
   }
+
+  // Обновляем отображение вопроса в форме
+  const renderQuestion = (question: Question, index: number, sectionIndex: number) => {
+    const errorMessage = errors[question.id]?.message;
+    
+    // Получение локализованного заголовка вопроса и описания
+    const localizedTitle = t(`questions.${question.id}`, question.title, locale);
+    const localizedDescription = question.description 
+      ? t(`descriptions.${question.id}`, question.description, locale) 
+      : undefined;
+    
+    return (
+      <div key={question.id} className="mb-8 transition-all duration-500">
+        <QuestionContainer>
+          <label htmlFor={question.id} className="text-lg font-medium block mb-2">
+            {localizedTitle}
+          </label>
+          
+          {localizedDescription && (
+            <p className="text-muted-foreground text-sm mb-4">{localizedDescription}</p>
+          )}
+          
+          {/* Рендер поля в зависимости от типа вопроса */}
+          {(question.type === 'text' || question.type === 'email') && (
+            <Controller
+              name={question.id}
+              control={control}
+              render={({ field }) => (
+                <input
+                  {...field}
+                  type={question.type}
+                  id={question.id}
+                  placeholder={t('form.input.placeholder', 'Ваш ответ', locale)}
+                  className="w-full p-3 rounded-md border border-input focus:border-accent focus:ring-1 focus:ring-accent"
+                />
+              )}
+            />
+          )}
+          
+          {question.type === 'textarea' && (
+            <Controller
+              name={question.id}
+              control={control}
+              render={({ field }) => (
+                <textarea
+                  {...field}
+                  id={question.id}
+                  rows={5}
+                  placeholder={t('form.textarea.placeholder', 'Напишите здесь...', locale)}
+                  className="w-full p-3 rounded-md border border-input focus:border-accent focus:ring-1 focus:ring-accent"
+                />
+              )}
+            />
+          )}
+          
+          {question.type === 'radio' && question.options && (
+            <div className="space-y-3">
+              <Controller
+                name={question.id}
+                control={control}
+                render={({ field }) => (
+                  <>
+                    {question.options?.map((option) => {
+                      // Получаем локализованный текст опции
+                      const localizedLabel = t(`options.${option.value}`, option.label, locale);
+                      const localizedDescription = option.description 
+                        ? t(`option_descriptions.${option.value}`, option.description, locale) 
+                        : undefined;
+                      
+                      return (
+                        <RadioOption
+                          key={option.value}
+                          id={`${question.id}-${option.value}`}
+                          name={question.id}
+                          value={option.value}
+                          checked={field.value === option.value}
+                          onChange={(e) => field.onChange(e.target.value)}
+                          label={localizedLabel}
+                          description={localizedDescription}
+                        />
+                      );
+                    })}
+                  </>
+                )}
+              />
+            </div>
+          )}
+          
+          {question.type === 'checkbox' && question.options && (
+            <div className="space-y-3">
+              <Controller
+                name={question.id}
+                control={control}
+                render={({ field }) => (
+                  <>
+                    {question.options?.map((option) => {
+                      // Получаем локализованный текст опции
+                      const localizedLabel = t(`options.${option.value}`, option.label, locale);
+                      const localizedDescription = option.description 
+                        ? t(`option_descriptions.${option.value}`, option.description, locale) 
+                        : undefined;
+                      
+                      const isChecked = Array.isArray(field.value) && field.value.includes(option.value);
+                      
+                      return (
+                        <div key={option.value} className="flex items-start space-x-2 p-2 rounded-md hover:bg-accent/5">
+                          <input
+                            type="checkbox"
+                            id={`${question.id}-${option.value}`}
+                            value={option.value}
+                            checked={isChecked}
+                            onChange={(e) => {
+                              const currentValues = Array.isArray(field.value) ? [...field.value] : [];
+                              if (e.target.checked) {
+                                field.onChange([...currentValues, option.value]);
+                              } else {
+                                field.onChange(currentValues.filter(val => val !== option.value));
+                              }
+                            }}
+                            className="mt-1"
+                          />
+                          <label htmlFor={`${question.id}-${option.value}`} className="flex-grow cursor-pointer">
+                            <div className="font-medium">{localizedLabel}</div>
+                            {localizedDescription && (
+                              <div className="text-sm text-muted-foreground">{localizedDescription}</div>
+                            )}
+                          </label>
+                        </div>
+                      );
+                    })}
+                  </>
+                )}
+              />
+            </div>
+          )}
+          
+          {errorMessage && (
+            <p className="text-red-500 text-sm mt-2">{errorMessage.toString()}</p>
+          )}
+        </QuestionContainer>
+      </div>
+    );
+  };
+
+  // Обновляем отображение секции формы
+  const renderSection = (section: SurveySection, index: number) => {
+    const localizedTitle = t(`sections.${section.id}`, section.title, locale);
+
+    return (
+      <div 
+        key={section.id} 
+        id={`section-${section.id}`}
+        className={`
+          space-y-6 py-6 
+          ${index > 0 ? 'section-separator' : ''}
+          animate-fadeIn
+        `}
+        style={{ animationDelay: `${index * 100}ms` }}
+      >
+        <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent animate-float">
+          {localizedTitle}
+        </h2>
+        
+        {section.id === 'info' && (
+          <div className="p-5 rounded-xl bg-accent/5 dark:bg-accent/10 border border-accent/10 mb-8 animate-fadeIn" style={{animationDelay: '200ms'}}>
+            <p className="text-muted-foreground">
+              {t('form.intro', 'Итак, вот оно наше чудо устройство...', locale)}
+            </p>
+          </div>
+        )}
+        
+        {section.id === 'final' && (
+          <div className="p-5 rounded-xl bg-primary/5 dark:bg-primary/10 border border-primary/10 mb-8 animate-fadeIn" style={{animationDelay: '200ms'}}>
+            <p className="text-muted-foreground">
+              {t('form.outro', 'Ёу-ёу-ёу! Вопросы закончились! Спасибо большое :)', locale)}
+            </p>
+          </div>
+        )}
+        
+        {/* Отображаем вопросы */}
+        {section.questions.map((question: Question, qIndex: number) => renderQuestion(question, qIndex, index))}
+      </div>
+    );
+  };
 
   return (
     <div className="w-full max-w-3xl mx-auto">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-        {/* Интро текст */}
-        <div className="prose prose-lg mb-8 animate-fade-in">
-          <p>{t('form.intro', 'Итак, вот оно наше чудо устройство...', locale)}</p>
-        </div>
-        
-        {/* Первое изображение - Ванная комната */}
-        <SurveyImage 
-          src="/images/Bathroom.png" 
-          alt="Ванная комната с устройством RNBW" 
-          className="my-8"
-        />
+      {isSuccess ? (
+        <SuccessMessage resetForm={resetForm} locale={locale} />
+      ) : (
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+          {/* Начальное изображение - в ванной */}
+          <SurveyImage 
+            src="/images/Bathroom.png" 
+            alt="Ванная комната с устройством RNBW" 
+            className="my-8"
+          />
 
-        {surveyData.map((section, sectionIndex) => (
-          <div 
-            key={sectionIndex}
-            ref={(el) => { sectionRefs.current[sectionIndex] = el; }}
-            className="space-y-6 transition-all duration-500 animate-fadeIn"
-            style={{ animationDelay: `${sectionIndex * 200}ms` }}
-          >
-            {/* Заголовок секции */}
-            <h2 className="text-2xl font-bold text-accent">
-              {t(`sections.${section.id}`, section.title, locale)}
-            </h2>
-            
-            {/* Особая вставка изображения перед разделом устройства */}
-            {sectionIndex === 1 && (
-              <SurveyImage 
-                src="/images/Bedroom.png" 
-                alt="Спальня с устройством RNBW" 
-                className="my-8"
-              />
-            )}
-            
-            {/* Особая вставка изображения перед вопросом о компактном устройстве */}
-            {sectionIndex === 2 && (
-              <SurveyImage 
-                src="/images/Bathroom2.png" 
-                alt="Ванная комната с компактным устройством RNBW" 
-                className="my-8"
-              />
-            )}
-            
-            {/* Особая вставка изображения перед разделом о смарт-бутылочках */}
-            {sectionIndex === 3 && (
-              <SurveyImage 
-                src="/images/Dispensers.png" 
-                alt="Дозаторы и бутылочки RNBW" 
-                className="my-8"
-              />
-            )}
-            
-            {section.questions.map((question: Question) => {
-              const errorMessage = errors[question.id]?.message;
-              
-              // Получение локализованного заголовка вопроса и описания
-              const localizedTitle = t(`questions.${question.id}`, question.title, locale);
-              const localizedDescription = question.description 
-                ? t(`descriptions.${question.id}`, question.description, locale) 
-                : undefined;
-              
-              return (
-                <div 
-                  key={question.id} 
-                  className="rounded-lg border p-6 animate-fadeIn"
-                  style={{ animationDelay: `${sectionIndex * 200 + 100}ms` }}
-                >
-                  <div className="mb-4">
-                    <label htmlFor={question.id} className="text-lg font-medium block mb-2">
-                      {localizedTitle}
-                      {question.required && <span className="text-red-500 ml-1">*</span>}
-                    </label>
-                    {localizedDescription && (
-                      <p className="text-muted-foreground text-sm mb-4">{localizedDescription}</p>
-                    )}
-                  </div>
-                  
-                  {/* Рендер поля в зависимости от типа вопроса */}
-                  {(question.type === 'text' || question.type === 'email') && (
-                    <Controller
-                      name={question.id}
-                      control={control}
-                      render={({ field }) => (
-                        <input
-                          {...field}
-                          type={question.type}
-                          id={question.id}
-                          placeholder={t('form.input.placeholder', 'Ваш ответ', locale)}
-                          className="w-full p-3 rounded-md border border-input focus:border-accent focus:ring-1 focus:ring-accent"
-                        />
-                      )}
-                    />
-                  )}
-                  
-                  {question.type === 'textarea' && (
-                    <Controller
-                      name={question.id}
-                      control={control}
-                      render={({ field }) => (
-                        <textarea
-                          {...field}
-                          id={question.id}
-                          rows={5}
-                          placeholder={t('form.textarea.placeholder', 'Напишите здесь...', locale)}
-                          className="w-full p-3 rounded-md border border-input focus:border-accent focus:ring-1 focus:ring-accent"
-                        />
-                      )}
-                    />
-                  )}
-                  
-                  {question.type === 'radio' && question.options && (
-                    <div className="space-y-3">
-                      <Controller
-                        name={question.id}
-                        control={control}
-                        render={({ field }) => (
-                          <>
-                            {question.options?.map((option) => {
-                              // Получаем локализованный текст опции
-                              const localizedLabel = t(`options.${option.value}`, option.label, locale);
-                              const localizedDescription = option.description 
-                                ? t(`option_descriptions.${option.value}`, option.description, locale) 
-                                : undefined;
-                              
-                              return (
-                                <div key={option.value} className="flex items-start space-x-2 p-2 rounded-md hover:bg-accent/5">
-                                  <input
-                                    type="radio"
-                                    id={`${question.id}-${option.value}`}
-                                    value={option.value}
-                                    checked={field.value === option.value}
-                                    onChange={() => field.onChange(option.value)}
-                                    className="mt-1"
-                                  />
-                                  <label htmlFor={`${question.id}-${option.value}`} className="flex-grow cursor-pointer">
-                                    <div className="font-medium">{localizedLabel}</div>
-                                    {localizedDescription && (
-                                      <div className="text-sm text-muted-foreground">{localizedDescription}</div>
-                                    )}
-                                  </label>
-                                </div>
-                              );
-                            })}
-                          </>
-                        )}
-                      />
-                    </div>
-                  )}
-                  
-                  {question.type === 'checkbox' && question.options && (
-                    <div className="space-y-3">
-                      <Controller
-                        name={question.id}
-                        control={control}
-                        render={({ field }) => (
-                          <>
-                            {question.options?.map((option) => {
-                              // Получаем локализованный текст опции
-                              const localizedLabel = t(`options.${option.value}`, option.label, locale);
-                              const localizedDescription = option.description 
-                                ? t(`option_descriptions.${option.value}`, option.description, locale) 
-                                : undefined;
-                              
-                              const isChecked = Array.isArray(field.value) && field.value.includes(option.value);
-                              
-                              return (
-                                <div key={option.value} className="flex items-start space-x-2 p-2 rounded-md hover:bg-accent/5">
-                                  <input
-                                    type="checkbox"
-                                    id={`${question.id}-${option.value}`}
-                                    value={option.value}
-                                    checked={isChecked}
-                                    onChange={(e) => {
-                                      const currentValues = Array.isArray(field.value) ? [...field.value] : [];
-                                      if (e.target.checked) {
-                                        field.onChange([...currentValues, option.value]);
-                                      } else {
-                                        field.onChange(currentValues.filter(val => val !== option.value));
-                                      }
-                                    }}
-                                    className="mt-1"
-                                  />
-                                  <label htmlFor={`${question.id}-${option.value}`} className="flex-grow cursor-pointer">
-                                    <div className="font-medium">{localizedLabel}</div>
-                                    {localizedDescription && (
-                                      <div className="text-sm text-muted-foreground">{localizedDescription}</div>
-                                    )}
-                                  </label>
-                                </div>
-                              );
-                            })}
-                          </>
-                        )}
-                      />
-                    </div>
-                  )}
-                  
-                  {errorMessage && (
-                    <p className="text-red-500 text-sm mt-2">{errorMessage.toString()}</p>
-                  )}
-                </div>
-              );
-            })}
-            
-            {/* Навигационные кнопки между секциями */}
-            {sectionIndex < surveyData.length - 1 && (
-              <div className="flex justify-end pt-4 pb-8 border-b">
-                <button
-                  type="button"
-                  onClick={() => scrollToSection(sectionIndex + 1)}
-                  className="flex items-center gap-2 px-6 py-2 bg-accent text-accent-foreground rounded-md hover:bg-accent/90 transition-colors"
-                >
-                  {t('nav.next', 'Следующий раздел', locale)}
-                  <ArrowRight className="h-4 w-4" />
-                </button>
+          {/* Отображаем все секции сразу */}
+          <div className="space-y-12">
+            {surveyData.map((section, index) => (
+              <div key={index} className="space-y-6 transition-all duration-500 animate-fadeIn">
+                {renderSection(section, index)}
+                
+                {/* Добавляем изображения между секциями */}
+                {index < surveyData.length - 1 && (
+                  <SurveyImage 
+                    src={
+                      index === 0 ? '/images/Bedroom.png' : 
+                      index === 1 ? '/images/Bathroom2.png' : 
+                      index === 2 ? '/images/Dispensers.png' : 
+                      '/images/Bathroom.png'
+                    } 
+                    alt={`RNBW устройство - ${t(`sections.${section.id}`, section.title, locale)}`} 
+                    className="my-8"
+                  />
+                )}
               </div>
-            )}
-            
-            {/* Кнопка отправки только в последней секции */}
-            {sectionIndex === surveyData.length - 1 && (
-              <div className="pt-8">
-                <p className="mb-8 text-lg">
-                  {t('form.outro', 'Ёу-ёу-ёу! Вопросы закончились! Спасибо большое :)', locale)}
-                </p>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full py-3 px-6 bg-accent text-accent-foreground rounded-md hover:bg-accent/90 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      {t('form.submitting', 'Отправка...', locale)}
-                    </>
-                  ) : (
-                    t('form.submit', 'Отправить ответы', locale)
-                  )}
-                </button>
-              </div>
-            )}
+            ))}
           </div>
-        ))}
-      </form>
+
+          {/* Кнопка отправки формы внизу всех секций */}
+          <div className="mt-12 flex justify-center">
+            <Button 
+              type="submit" 
+              disabled={isSubmitting}
+              className="animate-pulse-slow hover:scale-105 transition-transform bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 px-8 py-3 text-lg"
+            >
+              {isSubmitting ? t('form.submitting', 'Отправка...', locale) : t('form.submit', 'Отправить ответы', locale)}
+            </Button>
+          </div>
+        </form>
+      )}
     </div>
   );
 } 
