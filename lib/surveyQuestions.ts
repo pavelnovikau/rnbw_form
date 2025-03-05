@@ -1,678 +1,219 @@
 import { z } from 'zod';
 
-// Define types for our survey data structure
+// Типы вопросов и ответов
+export type QuestionType = 'text' | 'textarea' | 'radio' | 'checkbox' | 'email';
+
 export type QuestionOption = {
-  id: string;
-  localizationKey: string;
-  defaultText: string;
+  value: string;
+  label: string;
+  description?: string;
 };
 
 export type Question = {
   id: string;
-  localizationKey: string;
-  defaultTitle: string;
-  type: 'radio' | 'checkbox' | 'text' | 'textarea' | 'email';
-  required?: boolean;
+  type: QuestionType;
+  title: string;
+  description?: string;
   options?: QuestionOption[];
+  required?: boolean;
 };
 
 export type SurveySection = {
   id: string;
-  localizationKey: string;
-  defaultTitle: string;
+  title: string;
   questions: Question[];
 };
 
 // Define our survey data
 export const surveyData: SurveySection[] = [
   {
-    id: 'intro',
-    localizationKey: 'sections.intro',
-    defaultTitle: 'Общая информация',
+    id: 'info',
+    title: 'Информация',
     questions: [
       {
         id: 'name',
-        localizationKey: 'questions.name',
-        defaultTitle: 'Как тебя зовут:',
         type: 'text',
+        title: 'Как тебя зовут:',
         required: true
       },
       {
-        id: 'age',
-        localizationKey: 'questions.age',
-        defaultTitle: 'Сколько тебе лет (по паспорту). Да ладно, не говори, если не хочешь:',
+        id: 'occupation',
         type: 'text',
-        required: false
+        title: 'Чем занимаешься?',
       },
       {
-        id: 'perfume_frequency',
-        localizationKey: 'questions.perfume_frequency',
-        defaultTitle: 'Как часто ты пользуешься парфюмерией:',
+        id: 'fragrance_use',
         type: 'radio',
-        required: true,
+        title: 'Как часто ты пользуешься ароматами?',
         options: [
-          {
-            id: 'daily',
-            localizationKey: 'options.daily',
-            defaultText: 'Почти каждый день'
-          },
-          {
-            id: 'weekly',
-            localizationKey: 'options.weekly',
-            defaultText: 'Почти каждую неделю'
-          },
-          {
-            id: 'occasionally',
-            localizationKey: 'options.occasionally',
-            defaultText: 'Время от времени'
-          }
-        ]
-      },
-      {
-        id: 'gender',
-        localizationKey: 'questions.gender',
-        defaultTitle: 'Мне кажется, что я:',
-        type: 'radio',
-        required: true,
-        options: [
-          {
-            id: 'female',
-            localizationKey: 'options.female',
-            defaultText: 'Женщина'
-          },
-          {
-            id: 'male',
-            localizationKey: 'options.male',
-            defaultText: 'Мужчина'
-          },
-          {
-            id: 'not_sure',
-            localizationKey: 'options.not_sure',
-            defaultText: 'Да хрен его знает'
-          },
-          {
-            id: 'private',
-            localizationKey: 'options.private',
-            defaultText: 'Вас это волновать не должно'
-          }
-        ]
-      },
-      {
-        id: 'perfume_purchases',
-        localizationKey: 'questions.perfume_purchases',
-        defaultTitle: 'Сколько бутылочек парфюма ты купил(а) за последний год:',
-        type: 'radio',
-        required: true,
-        options: [
-          {
-            id: 'one_to_two',
-            localizationKey: 'options.one_to_two',
-            defaultText: '1-2 бутылочки'
-          },
-          {
-            id: 'three_to_four',
-            localizationKey: 'options.three_to_four',
-            defaultText: '3-4 бутылочки'
-          },
-          {
-            id: 'many',
-            localizationKey: 'options.many',
-            defaultText: 'А кто их считает?'
-          }
-        ]
-      },
-      {
-        id: 'perfume_factors',
-        localizationKey: 'questions.perfume_factors',
-        defaultTitle: 'Когда я выбираю парфюм мне важно:',
-        type: 'checkbox',
-        required: false,
-        options: [
-          {
-            id: 'brand',
-            localizationKey: 'options.brand',
-            defaultText: 'Бренд'
-          },
-          {
-            id: 'design',
-            localizationKey: 'options.design',
-            defaultText: 'Дизайн коробочки и бутылочки'
-          },
-          {
-            id: 'fragrance',
-            localizationKey: 'options.fragrance',
-            defaultText: 'Аромат'
-          },
-          {
-            id: 'price',
-            localizationKey: 'options.price',
-            defaultText: 'Цена'
-          },
-          {
-            id: 'recommendations',
-            localizationKey: 'options.recommendations',
-            defaultText: 'Что я про него слышал(а) от других'
-          },
-          {
-            id: 'other',
-            localizationKey: 'options.other',
-            defaultText: 'Другое'
-          }
-        ]
+          { value: 'daily', label: 'Ежедневно', description: 'Пользуюсь каждый день' },
+          { value: 'often', label: 'Часто', description: 'Несколько раз в неделю' },
+          { value: 'sometimes', label: 'Иногда', description: 'По особым случаям' },
+          { value: 'rarely', label: 'Редко', description: 'Практически не пользуюсь' }
+        ],
+        required: true
       }
     ]
   },
   {
-    id: 'device_features',
-    localizationKey: 'sections.device_features',
-    defaultTitle: 'Оценка функций устройства',
+    id: 'device',
+    title: 'Устройство',
     questions: [
       {
-        id: 'adaptive_scent',
-        localizationKey: 'questions.adaptive_scent',
-        defaultTitle: 'Наше замечательное устройство может с помощью искусственного интеллекта и с вашей помощью подстраиваться под погоду, ваше настроение, ваше расписание или под время суток и делать парфюм, который идеально подходит именно к этому моменту. Как вы думаете:',
-        type: 'radio',
-        required: true,
-        options: [
-          {
-            id: 'awesome',
-            localizationKey: 'options.awesome',
-            defaultText: 'Это офигенно!'
-          },
-          {
-            id: 'cool',
-            localizationKey: 'options.cool',
-            defaultText: 'Это прикольно!'
-          },
-          {
-            id: 'maybe_use',
-            localizationKey: 'options.maybe_use',
-            defaultText: 'Ну, наверное, я бы таким пользовался'
-          },
-          {
-            id: 'not_sure',
-            localizationKey: 'options.not_sure',
-            defaultText: 'Непонятно зачем и кому это надо'
-          },
-          {
-            id: 'nonsense',
-            localizationKey: 'options.nonsense',
-            defaultText: 'Бред какой-то'
-          }
-        ]
+        id: 'device_looks',
+        type: 'textarea',
+        title: 'Как тебе внешний вид устройства?',
+        description: 'Поделись впечатлениями о дизайне, материалах и общем впечатлении',
+        required: true
       },
       {
-        id: 'unique_scent',
-        localizationKey: 'questions.unique_scent',
-        defaultTitle: 'Это устройство может сделать УНИКАЛЬНЫЙ парфюм, которого больше не ни кого. Как вы думаете:',
+        id: 'device_place',
         type: 'radio',
-        required: true,
+        title: 'Где бы ты разместил(а) это устройство у себя дома?',
         options: [
-          {
-            id: 'awesome',
-            localizationKey: 'options.awesome',
-            defaultText: 'Это офигенно!'
-          },
-          {
-            id: 'cool',
-            localizationKey: 'options.cool',
-            defaultText: 'Это прикольно!'
-          },
-          {
-            id: 'maybe_use',
-            localizationKey: 'options.maybe_use',
-            defaultText: 'Ну, наверное, я бы таким пользовался'
-          },
-          {
-            id: 'not_sure',
-            localizationKey: 'options.not_sure',
-            defaultText: 'Непонятно зачем и кому это надо'
-          },
-          {
-            id: 'nonsense',
-            localizationKey: 'options.nonsense',
-            defaultText: 'Бред какой-то'
-          }
-        ]
+          { value: 'bathroom', label: 'В ванной комнате' },
+          { value: 'bedroom', label: 'В спальне' },
+          { value: 'living_room', label: 'В гостиной' },
+          { value: 'hall', label: 'В прихожей' },
+          { value: 'other', label: 'Другое место' }
+        ],
+        required: true
       },
       {
         id: 'compact_device',
-        localizationKey: 'questions.compact_device',
-        defaultTitle: 'Небольшая коробочка, размер с толстую книгу, стоит на вашей полочке и при этом содержит 1001 (тысяча один) РАЗНЫХ бутылочек парфюма. Как вы думаете:',
         type: 'radio',
-        required: true,
+        title: 'Хотел(а) бы ты, чтобы была более компактная модель устройства?',
         options: [
-          {
-            id: 'awesome',
-            localizationKey: 'options.awesome',
-            defaultText: 'Это офигенно!'
-          },
-          {
-            id: 'cool',
-            localizationKey: 'options.cool',
-            defaultText: 'Это прикольно!'
-          },
-          {
-            id: 'maybe_use',
-            localizationKey: 'options.maybe_use',
-            defaultText: 'Ну, наверное, я бы таким пользовался'
-          },
-          {
-            id: 'not_sure',
-            localizationKey: 'options.not_sure',
-            defaultText: 'Непонятно зачем и кому это надо'
-          },
-          {
-            id: 'nonsense',
-            localizationKey: 'options.nonsense',
-            defaultText: 'Бред какой-то'
-          }
-        ]
+          { value: 'yes', label: 'Да, предпочитаю меньший размер' },
+          { value: 'no', label: 'Нет, текущий размер оптимален' },
+          { value: 'depends', label: 'Зависит от функциональности' }
+        ],
+        required: true
       }
     ]
   },
   {
-    id: 'interactive_features',
-    localizationKey: 'sections.interactive_features',
-    defaultTitle: 'Интерактивные функции',
+    id: 'features',
+    title: 'Функции',
     questions: [
       {
-        id: 'game_mode',
-        localizationKey: 'questions.game_mode',
-        defaultTitle: 'Возможно это несколько неожиданно, но кроме всего прочего устройство может развлекать и обучать вас. В нем есть режим игры, где коробочка выдаёт случайный запах, один для начала и пять, если вы хорошо разбираетесь в запахах, а вам надо угадать был это аромат розы, табака или пачули. За правильный ответ вы получаете баллы, чем сложнее, тем больше. Баллы можно обменять на другую косметику.',
-        type: 'radio',
-        required: true,
+        id: 'important_features',
+        type: 'checkbox',
+        title: 'Какие функции устройства для тебя наиболее важны?',
         options: [
-          {
-            id: 'awesome',
-            localizationKey: 'options.awesome',
-            defaultText: 'Это офигенно!'
-          },
-          {
-            id: 'cool',
-            localizationKey: 'options.cool',
-            defaultText: 'Это прикольно!'
-          },
-          {
-            id: 'maybe_use',
-            localizationKey: 'options.maybe_use',
-            defaultText: 'Ну, наверное, я бы таким пользовался'
-          },
-          {
-            id: 'not_sure',
-            localizationKey: 'options.not_sure',
-            defaultText: 'Непонятно зачем и кому это надо'
-          },
-          {
-            id: 'nonsense',
-            localizationKey: 'options.nonsense',
-            defaultText: 'Бред какой-то'
-          }
-        ]
+          { value: 'smart_mixing', label: 'Умное смешивание ароматов' },
+          { value: 'app_control', label: 'Управление через мобильное приложение' },
+          { value: 'scheduling', label: 'Планирование расписания ароматов' },
+          { value: 'personalization', label: 'Персонализация ароматов' },
+          { value: 'mood_matching', label: 'Подбор аромата под настроение' },
+          { value: 'voice_control', label: 'Голосовое управление' }
+        ],
+        required: true
       },
       {
-        id: 'create_publish',
-        localizationKey: 'questions.create_publish',
-        defaultTitle: 'Если вы стали экспертом в ароматах, то вы можете предъявить это знание миру. Как лучший парфюмер Франции вы можете создать свой запах, дать ему имя и опубликовать в турнирной таблице. Другие пользователи голосуют. Запах недели, месяца или года получает приз.',
-        type: 'radio',
-        required: true,
-        options: [
-          {
-            id: 'awesome',
-            localizationKey: 'options.awesome',
-            defaultText: 'Это офигенно!'
-          },
-          {
-            id: 'cool',
-            localizationKey: 'options.cool',
-            defaultText: 'Это прикольно!'
-          },
-          {
-            id: 'maybe_use',
-            localizationKey: 'options.maybe_use',
-            defaultText: 'Ну, наверное, я бы таким пользовался'
-          },
-          {
-            id: 'not_sure',
-            localizationKey: 'options.not_sure',
-            defaultText: 'Непонятно зачем и кому это надо'
-          },
-          {
-            id: 'nonsense',
-            localizationKey: 'options.nonsense',
-            defaultText: 'Бред какой-то'
-          }
-        ]
+        id: 'missing_features',
+        type: 'textarea',
+        title: 'Какие функции ты бы добавил(а) в устройство?',
+        description: 'Не стесняйся предлагать самые смелые идеи'
       },
       {
-        id: 'try_top_scents',
-        localizationKey: 'questions.try_top_scents',
-        defaultTitle: 'Или как вам идея интереснее понюхать и пользоваться тем, что уже находится в топе турнирной таблицы? Ароматы созданные лучшими носами мира, подкрепленные тысячами отзывов пользователей, мне кажется, точно не могут пахнуть плохо:',
+        id: 'app_importance',
         type: 'radio',
-        required: true,
+        title: 'Насколько важно для тебя наличие мобильного приложения для устройства?',
         options: [
-          {
-            id: 'awesome',
-            localizationKey: 'options.awesome',
-            defaultText: 'Это офигенно!'
-          },
-          {
-            id: 'cool',
-            localizationKey: 'options.cool',
-            defaultText: 'Это прикольно!'
-          },
-          {
-            id: 'maybe_use',
-            localizationKey: 'options.maybe_use',
-            defaultText: 'Ну, наверное, я бы таким пользовался'
-          },
-          {
-            id: 'not_sure',
-            localizationKey: 'options.not_sure',
-            defaultText: 'Непонятно зачем и кому это надо'
-          },
-          {
-            id: 'nonsense',
-            localizationKey: 'options.nonsense',
-            defaultText: 'Бред какой-то'
-          }
-        ]
-      },
-      {
-        id: 'unique_gift',
-        localizationKey: 'questions.unique_gift',
-        defaultTitle: 'А как насчёт того, чтобы создать запах для парфюма и превратить его в уникальный подарок для своего партнера или друга/подруги?',
-        type: 'radio',
-        required: true,
-        options: [
-          {
-            id: 'awesome',
-            localizationKey: 'options.awesome',
-            defaultText: 'Это офигенно!'
-          },
-          {
-            id: 'cool',
-            localizationKey: 'options.cool',
-            defaultText: 'Это прикольно!'
-          },
-          {
-            id: 'maybe_use',
-            localizationKey: 'options.maybe_use',
-            defaultText: 'Ну, наверное, я бы таким пользовался'
-          },
-          {
-            id: 'not_sure',
-            localizationKey: 'options.not_sure',
-            defaultText: 'Непонятно зачем и кому это надо'
-          },
-          {
-            id: 'nonsense',
-            localizationKey: 'options.nonsense',
-            defaultText: 'Бред какой-то'
-          }
-        ]
-      },
-      {
-        id: 'try_home',
-        localizationKey: 'questions.try_home',
-        defaultTitle: 'Твой любимый бренд выпустил новую туалетную воду, но не ехать же ради этого в магазин. Как насчет того, чтобы понюхать этот аромат дома ведь устройство его легко приготовит?',
-        type: 'radio',
-        required: true,
-        options: [
-          {
-            id: 'awesome',
-            localizationKey: 'options.awesome',
-            defaultText: 'Это офигенно!'
-          },
-          {
-            id: 'cool',
-            localizationKey: 'options.cool',
-            defaultText: 'Это прикольно!'
-          },
-          {
-            id: 'maybe_use',
-            localizationKey: 'options.maybe_use',
-            defaultText: 'Ну, наверное, я бы таким пользовался'
-          },
-          {
-            id: 'not_sure',
-            localizationKey: 'options.not_sure',
-            defaultText: 'Непонятно зачем и кому это надо'
-          },
-          {
-            id: 'nonsense',
-            localizationKey: 'options.nonsense',
-            defaultText: 'Бред какой-то'
-          }
-        ]
+          { value: 'very_important', label: 'Очень важно' },
+          { value: 'important', label: 'Важно' },
+          { value: 'neutral', label: 'Нейтрально' },
+          { value: 'not_important', label: 'Не важно' }
+        ],
+        required: true
       }
     ]
   },
   {
-    id: 'smart_bottles',
-    localizationKey: 'sections.smart_bottles',
-    defaultTitle: 'Умные бутылочки',
+    id: 'bottles',
+    title: 'Бутылочки',
     questions: [
       {
-        id: 'smart_bottles',
-        localizationKey: 'questions.smart_bottles',
-        defaultTitle: 'Важная часть нашего устройства вот такие бутылочки. Это умные устройства, которые заправляются на день парфюмерией, что вы выбрали, а потом напоминают вам время от времени освежить аромат.',
-        type: 'radio',
-        required: true,
-        options: [
-          {
-            id: 'awesome',
-            localizationKey: 'options.awesome',
-            defaultText: 'Это офигенно!'
-          },
-          {
-            id: 'cool',
-            localizationKey: 'options.cool',
-            defaultText: 'Это прикольно!'
-          },
-          {
-            id: 'maybe_use',
-            localizationKey: 'options.maybe_use',
-            defaultText: 'Ну, наверное, я бы таким пользовался'
-          },
-          {
-            id: 'not_sure',
-            localizationKey: 'options.not_sure',
-            defaultText: 'Непонятно зачем и кому это надо'
-          },
-          {
-            id: 'nonsense',
-            localizationKey: 'options.nonsense',
-            defaultText: 'Бред какой-то'
-          }
-        ]
+        id: 'bottles_design',
+        type: 'textarea',
+        title: 'Как тебе дизайн умных бутылочек?',
+        description: 'Поделись своими впечатлениями о внешнем виде, удобстве использования и т.д.',
+        required: true
       },
       {
-        id: 'reusable_bottles',
-        localizationKey: 'questions.reusable_bottles',
-        defaultTitle: 'Бутылочки универсальны и легко могут быть перезаправлены новым ароматом. Вам больше не надо их выкидывать и загрязнять окружающую среду.',
+        id: 'bottles_count',
         type: 'radio',
-        required: true,
+        title: 'Сколько разных ароматов (бутылочек) ты хотел(а) бы иметь в устройстве одновременно?',
         options: [
-          {
-            id: 'awesome',
-            localizationKey: 'options.awesome',
-            defaultText: 'Это офигенно!'
-          },
-          {
-            id: 'cool',
-            localizationKey: 'options.cool',
-            defaultText: 'Это прикольно!'
-          },
-          {
-            id: 'maybe_use',
-            localizationKey: 'options.maybe_use',
-            defaultText: 'Ну, наверное, я бы таким пользовался'
-          },
-          {
-            id: 'not_sure',
-            localizationKey: 'options.not_sure',
-            defaultText: 'Непонятно зачем и кому это надо'
-          },
-          {
-            id: 'nonsense',
-            localizationKey: 'options.nonsense',
-            defaultText: 'Бред какой-то'
-          }
-        ]
+          { value: 'few', label: '3-5 ароматов', description: 'Для создания базовых композиций' },
+          { value: 'medium', label: '6-10 ароматов', description: 'Для создания разнообразных композиций' },
+          { value: 'many', label: 'Более 10 ароматов', description: 'Для максимального разнообразия' }
+        ],
+        required: true
       },
       {
-        id: 'scan_recreate',
-        localizationKey: 'questions.scan_recreate',
-        defaultTitle: 'Вы заходите в парфюмерный магазин, нюхаете аромат, он вам нравится, вы фотографируете коробку и устройство готовит такой же аромат для вас.',
+        id: 'refill_preference',
         type: 'radio',
-        required: true,
+        title: 'Как бы ты предпочел(ла) пополнять запасы ароматов?',
         options: [
-          {
-            id: 'awesome',
-            localizationKey: 'options.awesome',
-            defaultText: 'Это офигенно!'
-          },
-          {
-            id: 'cool',
-            localizationKey: 'options.cool',
-            defaultText: 'Это прикольно!'
-          },
-          {
-            id: 'maybe_use',
-            localizationKey: 'options.maybe_use',
-            defaultText: 'Ну, наверное, я бы таким пользовался'
-          },
-          {
-            id: 'not_sure',
-            localizationKey: 'options.not_sure',
-            defaultText: 'Непонятно зачем и кому это надо'
-          },
-          {
-            id: 'nonsense',
-            localizationKey: 'options.nonsense',
-            defaultText: 'Бред какой-то'
-          }
-        ]
+          { value: 'subscription', label: 'Регулярная подписка', description: 'Автоматическая доставка новых ароматов' },
+          { value: 'manual_order', label: 'Заказывать по мере необходимости', description: 'Самостоятельно выбирать и заказывать новые ароматы' },
+          { value: 'retail', label: 'Покупать в магазинах', description: 'Приобретать в розничных точках продаж' }
+        ],
+        required: true
       }
     ]
   },
   {
-    id: 'branding_pricing',
-    localizationKey: 'sections.branding_pricing',
-    defaultTitle: 'Название и цена',
+    id: 'final',
+    title: 'Финал',
     questions: [
       {
-        id: 'brand_name',
-        localizationKey: 'questions.brand_name',
-        defaultTitle: 'Что вы думаете про название RNBW (Rainbow). Это как радуга из ароматов. Полный спектр от бирюзового моря до красной розы.',
+        id: 'price_range',
         type: 'radio',
-        required: true,
+        title: 'Какую сумму ты готов(а) потратить на такое устройство?',
         options: [
-          {
-            id: 'excellent',
-            localizationKey: 'options.excellent',
-            defaultText: 'Отличное название'
-          },
-          {
-            id: 'ok',
-            localizationKey: 'options.ok',
-            defaultText: 'Норм, но я сразу не догнал(а)'
-          },
-          {
-            id: 'weird',
-            localizationKey: 'options.weird',
-            defaultText: 'Хорошое название для очередного ребенка Маска'
-          },
-          {
-            id: 'bad',
-            localizationKey: 'options.bad',
-            defaultText: 'Херня какая-то'
-          }
-        ]
+          { value: 'low', label: 'До 10 000 рублей' },
+          { value: 'medium', label: '10 000 - 20 000 рублей' },
+          { value: 'high', label: '20 000 - 30 000 рублей' },
+          { value: 'premium', label: 'Более 30 000 рублей' }
+        ],
+        required: true
       },
       {
-        id: 'expected_price',
-        localizationKey: 'questions.expected_price',
-        defaultTitle: 'А как вы думаете, когда мы выйдем на рынок, сколько такое устройство должно по вашему стоить (чем точнее вы угадаете цену, тем больше будет скидка)?',
-        type: 'radio',
-        required: true,
-        options: [
-          {
-            id: 'low',
-            localizationKey: 'options.low',
-            defaultText: '200-300 евро'
-          },
-          {
-            id: 'medium',
-            localizationKey: 'options.medium',
-            defaultText: '301-600 евро'
-          },
-          {
-            id: 'high',
-            localizationKey: 'options.high',
-            defaultText: '601 или выше евро'
-          }
-        ]
-      },
-      {
-        id: 'willing_to_pay',
-        localizationKey: 'questions.willing_to_pay',
-        defaultTitle: 'Со стоимостью разобрались. А вы бы хотели купить себе такое устройство? А сколько бы были готовы за него заплатить вы?',
-        type: 'radio',
-        required: true,
-        options: [
-          {
-            id: 'not_interested',
-            localizationKey: 'options.not_interested',
-            defaultText: 'Не, мне такое бесплатно не надо'
-          },
-          {
-            id: 'low',
-            localizationKey: 'options.low',
-            defaultText: '200-300 евро'
-          },
-          {
-            id: 'medium',
-            localizationKey: 'options.medium',
-            defaultText: '301-600 евро'
-          },
-          {
-            id: 'high',
-            localizationKey: 'options.high',
-            defaultText: '601 или выше евро'
-          }
-        ]
+        id: 'final_feedback',
+        type: 'textarea',
+        title: 'Есть ли что-то еще, чем ты хотел(а) бы поделиться о концепции устройства?'
       },
       {
         id: 'email',
-        localizationKey: 'questions.email',
-        defaultTitle: 'А вот это уже совсем опционально. Но, если ты хочешь узнать когда выйдёт нашу устройство и получить супер-пупер-мега скидку, то оставь свой email куда тебе эту скидку прислать:',
         type: 'email',
-        required: false
+        title: 'Твой email для связи (если хочешь получать новости о проекте):',
+        description: 'Мы не будем использовать его для спама, только для информации о запуске'
       }
     ]
   }
 ];
 
-// Helper function to find a question by ID
-export const getQuestionById = (questionId: string): Question | undefined => {
+// Функция для получения вопроса по ID
+export function getQuestionById(id: string): Question | undefined {
   for (const section of surveyData) {
-    const question = section.questions.find(q => q.id === questionId);
+    const question = section.questions.find(q => q.id === id);
     if (question) return question;
   }
   return undefined;
-};
+}
 
 // Helper function for translations (to be expanded later)
 export const getTranslatedQuestion = (question: Question, locale = 'ru'): string => {
   // For now, just return the default title
   // In the future, this would use the localization system
-  return question.defaultTitle;
+  return question.title;
 };
 
 export const getTranslatedOption = (option: QuestionOption, locale = 'ru'): string => {
   // For now, just return the default text
   // In the future, this would use the localization system
-  return option.defaultText;
+  return option.label;
 }; 

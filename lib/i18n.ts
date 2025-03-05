@@ -28,7 +28,8 @@ export const translations: Translations = {
     
     // Форма
     'form.name': 'Как тебя зовут:',
-    'form.name.placeholder': 'Ваше имя',
+    'form.occupation': 'Чем занимаешься?',
+    'form.fragrance_use': 'Как часто ты пользуешься ароматами?',
     'form.email.placeholder': 'your.email@example.com',
     'form.textarea.placeholder': 'Напишите здесь...',
     'form.input.placeholder': 'Ваш ответ',
@@ -36,6 +37,64 @@ export const translations: Translations = {
     'form.submitting': 'Отправка...',
     'form.intro': 'Итак, вот оно наше чудо устройство. Если рассказывать про него коротко, то он умеет брать ароматы ванили, кожи, красного грейпфрута и несколько десятков других ароматов из маленьких бутылочек и смешивать их в уникальную композицию подобранную специально для вас.',
     'form.outro': 'Ёу-ёу-ёу! Вопросы закончились! Спасибо большое :) Правда! Большое громадное спасибо!!! Мне ваши ответы сильно помогут. Можно я спрошу еще чуть-чуть?',
+    
+    // Разделы
+    'sections.info': 'Информация',
+    'sections.device': 'Устройство',
+    'sections.features': 'Функции',
+    'sections.bottles': 'Бутылочки',
+    'sections.final': 'Финал',
+    
+    // Вопросы
+    'questions.name': 'Как тебя зовут:',
+    'questions.occupation': 'Чем занимаешься?',
+    'questions.fragrance_use': 'Как часто ты пользуешься ароматами?',
+    'questions.device_looks': 'Как тебе внешний вид устройства?',
+    'questions.device_place': 'Где бы ты разместил(а) это устройство у себя дома?',
+    'questions.compact_device': 'Хотел(а) бы ты, чтобы была более компактная модель устройства?',
+    'questions.important_features': 'Какие функции устройства для тебя наиболее важны?',
+    'questions.missing_features': 'Какие функции ты бы добавил(а) в устройство?',
+    'questions.app_importance': 'Насколько важно для тебя наличие мобильного приложения для устройства?',
+    'questions.bottles_design': 'Как тебе дизайн умных бутылочек?',
+    'questions.bottles_count': 'Сколько разных ароматов (бутылочек) ты хотел(а) бы иметь в устройстве одновременно?',
+    'questions.refill_preference': 'Как бы ты предпочел(ла) пополнять запасы ароматов?',
+    'questions.price_range': 'Какую сумму ты готов(а) потратить на такое устройство?',
+    'questions.final_feedback': 'Есть ли что-то еще, чем ты хотел(а) бы поделиться о концепции устройства?',
+    'questions.email': 'Твой email для связи (если хочешь получать новости о проекте):',
+    
+    // Опции
+    'options.daily': 'Ежедневно',
+    'options.often': 'Часто',
+    'options.sometimes': 'Иногда',
+    'options.rarely': 'Редко',
+    'options.bathroom': 'В ванной комнате',
+    'options.bedroom': 'В спальне',
+    'options.living_room': 'В гостиной',
+    'options.hall': 'В прихожей',
+    'options.other': 'Другое место',
+    'options.yes': 'Да, предпочитаю меньший размер',
+    'options.no': 'Нет, текущий размер оптимален',
+    'options.depends': 'Зависит от функциональности',
+    'options.smart_mixing': 'Умное смешивание ароматов',
+    'options.app_control': 'Управление через мобильное приложение',
+    'options.scheduling': 'Планирование расписания ароматов',
+    'options.personalization': 'Персонализация ароматов',
+    'options.mood_matching': 'Подбор аромата под настроение',
+    'options.voice_control': 'Голосовое управление',
+    'options.very_important': 'Очень важно',
+    'options.important': 'Важно',
+    'options.neutral': 'Нейтрально',
+    'options.not_important': 'Не важно',
+    'options.few': '3-5 ароматов',
+    'options.medium_bottles': '6-10 ароматов',
+    'options.many': 'Более 10 ароматов',
+    'options.subscription': 'Регулярная подписка',
+    'options.manual_order': 'Заказывать по мере необходимости',
+    'options.retail': 'Покупать в магазинах',
+    'options.low_price': 'До 10 000 рублей',
+    'options.medium_price': 'От 10 000 до 20 000 рублей',
+    'options.high_price': 'От 20 000 до 30 000 рублей',
+    'options.premium': 'Более 30 000 рублей',
     
     // Сообщения об ошибках
     'error.required': 'Это поле обязательно для заполнения',
@@ -69,7 +128,8 @@ export const translations: Translations = {
     
     // Form
     'form.name': 'Your name:',
-    'form.name.placeholder': 'Your name',
+    'form.occupation': 'What do you do?',
+    'form.fragrance_use': 'How often do you use fragrances?',
     'form.email.placeholder': 'your.email@example.com',
     'form.textarea.placeholder': 'Write here...',
     'form.input.placeholder': 'Your answer',
@@ -77,6 +137,64 @@ export const translations: Translations = {
     'form.submitting': 'Submitting...',
     'form.intro': 'So here it is, our wonder device. If we talk about it briefly, it can take aromas of vanilla, leather, red grapefruit, and several dozen other fragrances from small bottles and mix them into a unique composition tailored specifically for you.',
     'form.outro': 'Yay! The questions are over! Thank you very much :) Really! A huge thanks!!! Your answers will help me a lot. Can I ask just a little bit more?',
+    
+    // Sections
+    'sections.info': 'Information',
+    'sections.device': 'Device',
+    'sections.features': 'Features',
+    'sections.bottles': 'Bottles',
+    'sections.final': 'Final',
+    
+    // Questions
+    'questions.name': 'Your name:',
+    'questions.occupation': 'What do you do?',
+    'questions.fragrance_use': 'How often do you use fragrances?',
+    'questions.device_looks': 'What do you think about the device appearance?',
+    'questions.device_place': 'Where would you place this device in your home?',
+    'questions.compact_device': 'Would you like to have a more compact device model?',
+    'questions.important_features': 'Which device functions are most important to you?',
+    'questions.missing_features': 'What features would you add to the device?',
+    'questions.app_importance': 'How important is having a mobile app for the device to you?',
+    'questions.bottles_design': 'What do you think about the smart bottles design?',
+    'questions.bottles_count': 'How many different fragrances (bottles) would you like to have in the device at the same time?',
+    'questions.refill_preference': 'How would you prefer to replenish your fragrance supplies?',
+    'questions.price_range': 'How much are you willing to spend on such a device?',
+    'questions.final_feedback': 'Is there anything else you would like to share about the device concept?',
+    'questions.email': 'Your email for contact (if you want to receive project news):',
+    
+    // Options
+    'options.daily': 'Daily',
+    'options.often': 'Often',
+    'options.sometimes': 'Sometimes',
+    'options.rarely': 'Rarely',
+    'options.bathroom': 'In the bathroom',
+    'options.bedroom': 'In the bedroom',
+    'options.living_room': 'In the living room',
+    'options.hall': 'In the hallway',
+    'options.other': 'Other place',
+    'options.yes': 'Yes, I prefer a smaller size',
+    'options.no': 'No, the current size is optimal',
+    'options.depends': 'Depends on functionality',
+    'options.smart_mixing': 'Smart fragrance mixing',
+    'options.app_control': 'Mobile app control',
+    'options.scheduling': 'Fragrance schedule planning',
+    'options.personalization': 'Fragrance personalization',
+    'options.mood_matching': 'Mood-based fragrance selection',
+    'options.voice_control': 'Voice control',
+    'options.very_important': 'Very important',
+    'options.important': 'Important',
+    'options.neutral': 'Neutral',
+    'options.not_important': 'Not important',
+    'options.few': '3-5 fragrances',
+    'options.medium_bottles': '6-10 fragrances',
+    'options.many': 'More than 10 fragrances',
+    'options.subscription': 'Regular subscription',
+    'options.manual_order': 'Order as needed',
+    'options.retail': 'Buy in stores',
+    'options.low_price': 'Up to $150',
+    'options.medium_price': '$150 - $300',
+    'options.high_price': '$300 - $450',
+    'options.premium': 'More than $450',
     
     // Error messages
     'error.required': 'This field is required',
@@ -99,14 +217,26 @@ export const translations: Translations = {
  * Translate a key to the current locale
  * @param key Translation key
  * @param defaultValue Default text to use if translation is not found
- * @param locale Locale to use (defaults to English)
+ * @param locale Locale to use (defaults to Russian)
  * @returns Translated text or default text
  */
 export function t(key: string, defaultValue: string = '', locale: Locale = DEFAULT_LOCALE): string {
-  if (!translations[locale]) return defaultValue || key;
+  // Проверяем, есть ли такая локаль в нашем объекте переводов
+  if (!translations[locale]) {
+    console.warn(`Locale "${locale}" not found, using default value`);
+    return defaultValue || key;
+  }
   
+  // Получаем перевод по ключу
   const translation = translations[locale][key];
-  return translation || defaultValue || key;
+  
+  // Если перевод не найден, используем дефолтное значение или ключ
+  if (!translation) {
+    console.warn(`Translation key "${key}" not found in locale "${locale}", using default value`);
+    return defaultValue || key;
+  }
+  
+  return translation;
 }
 
 /**

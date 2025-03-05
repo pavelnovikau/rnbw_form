@@ -73,13 +73,17 @@ export function SurveyForm({ locale = 'ru', onSuccess }: SurveyFormProps) {
   const [isSuccess, setIsSuccess] = useState(false);
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
   
+  console.log('SurveyForm: Rendering with locale:', locale);
+  console.log('SurveyForm: First section title:', surveyData[0].title);
+  console.log('SurveyForm: First question title:', surveyData[0].questions[0].title);
+  
   // Создаем динамическую схему валидации на основе вопросов
   const formSchema = z.object(
     Object.fromEntries(
       surveyData.flatMap(section => 
         section.questions.map(question => {
           // Базовая схема в зависимости от типа вопроса
-          let schema = z.any();
+          let schema: any = z.any();
           
           if (question.type === 'text' || question.type === 'textarea') {
             schema = question.required 
@@ -281,6 +285,12 @@ export function SurveyForm({ locale = 'ru', onSuccess }: SurveyFormProps) {
             {section.questions.map((question: Question) => {
               const errorMessage = errors[question.id]?.message;
               
+              // Получение локализованного заголовка вопроса и описания
+              const localizedTitle = t(`questions.${question.id}`, question.title, locale);
+              const localizedDescription = question.description 
+                ? t(`descriptions.${question.id}`, question.description, locale) 
+                : undefined;
+              
               return (
                 <div 
                   key={question.id} 
@@ -289,11 +299,11 @@ export function SurveyForm({ locale = 'ru', onSuccess }: SurveyFormProps) {
                 >
                   <div className="mb-4">
                     <label htmlFor={question.id} className="text-lg font-medium block mb-2">
-                      {question.title}
+                      {localizedTitle}
                       {question.required && <span className="text-red-500 ml-1">*</span>}
                     </label>
-                    {question.description && (
-                      <p className="text-muted-foreground text-sm mb-4">{question.description}</p>
+                    {localizedDescription && (
+                      <p className="text-muted-foreground text-sm mb-4">{localizedDescription}</p>
                     )}
                   </div>
                   
@@ -337,28 +347,32 @@ export function SurveyForm({ locale = 'ru', onSuccess }: SurveyFormProps) {
                         control={control}
                         render={({ field }) => (
                           <>
-                            {question.options?.map((option: QuestionOption) => (
-                              <label
-                                key={option.value}
-                                className="flex items-start p-3 rounded-md border border-input hover:border-accent/50 cursor-pointer transition-all"
-                              >
-                                <input
-                                  type="radio"
-                                  value={option.value}
-                                  checked={field.value === option.value}
-                                  onChange={() => field.onChange(option.value)}
-                                  className="mt-1 mr-3"
-                                />
-                                <div>
-                                  <div className="font-medium">{option.label}</div>
-                                  {option.description && (
-                                    <div className="text-sm text-muted-foreground mt-1">
-                                      {option.description}
-                                    </div>
-                                  )}
+                            {question.options?.map((option) => {
+                              // Получаем локализованный текст опции
+                              const localizedLabel = t(`options.${option.value}`, option.label, locale);
+                              const localizedDescription = option.description 
+                                ? t(`option_descriptions.${option.value}`, option.description, locale) 
+                                : undefined;
+                              
+                              return (
+                                <div key={option.value} className="flex items-start space-x-2 p-2 rounded-md hover:bg-accent/5">
+                                  <input
+                                    type="radio"
+                                    id={`${question.id}-${option.value}`}
+                                    value={option.value}
+                                    checked={field.value === option.value}
+                                    onChange={() => field.onChange(option.value)}
+                                    className="mt-1"
+                                  />
+                                  <label htmlFor={`${question.id}-${option.value}`} className="flex-grow cursor-pointer">
+                                    <div className="font-medium">{localizedLabel}</div>
+                                    {localizedDescription && (
+                                      <div className="text-sm text-muted-foreground">{localizedDescription}</div>
+                                    )}
+                                  </label>
                                 </div>
-                              </label>
-                            ))}
+                              );
+                            })}
                           </>
                         )}
                       />
@@ -372,42 +386,41 @@ export function SurveyForm({ locale = 'ru', onSuccess }: SurveyFormProps) {
                         control={control}
                         render={({ field }) => (
                           <>
-                            {question.options?.map((option: QuestionOption) => (
-                              <label
-                                key={option.value}
-                                className="flex items-start p-3 rounded-md border border-input hover:border-accent/50 cursor-pointer transition-all"
-                              >
-                                <input
-                                  type="checkbox"
-                                  value={option.value}
-                                  checked={field.value?.includes(option.value)}
-                                  onChange={(e) => {
-                                    const checked = e.target.checked;
-                                    const updatedValues = [...(field.value || [])];
-                                    
-                                    if (checked) {
-                                      updatedValues.push(option.value);
-                                    } else {
-                                      const index = updatedValues.indexOf(option.value);
-                                      if (index > -1) {
-                                        updatedValues.splice(index, 1);
+                            {question.options?.map((option) => {
+                              // Получаем локализованный текст опции
+                              const localizedLabel = t(`options.${option.value}`, option.label, locale);
+                              const localizedDescription = option.description 
+                                ? t(`option_descriptions.${option.value}`, option.description, locale) 
+                                : undefined;
+                              
+                              const isChecked = Array.isArray(field.value) && field.value.includes(option.value);
+                              
+                              return (
+                                <div key={option.value} className="flex items-start space-x-2 p-2 rounded-md hover:bg-accent/5">
+                                  <input
+                                    type="checkbox"
+                                    id={`${question.id}-${option.value}`}
+                                    value={option.value}
+                                    checked={isChecked}
+                                    onChange={(e) => {
+                                      const currentValues = Array.isArray(field.value) ? [...field.value] : [];
+                                      if (e.target.checked) {
+                                        field.onChange([...currentValues, option.value]);
+                                      } else {
+                                        field.onChange(currentValues.filter(val => val !== option.value));
                                       }
-                                    }
-                                    
-                                    field.onChange(updatedValues);
-                                  }}
-                                  className="mt-1 mr-3"
-                                />
-                                <div>
-                                  <div className="font-medium">{option.label}</div>
-                                  {option.description && (
-                                    <div className="text-sm text-muted-foreground mt-1">
-                                      {option.description}
-                                    </div>
-                                  )}
+                                    }}
+                                    className="mt-1"
+                                  />
+                                  <label htmlFor={`${question.id}-${option.value}`} className="flex-grow cursor-pointer">
+                                    <div className="font-medium">{localizedLabel}</div>
+                                    {localizedDescription && (
+                                      <div className="text-sm text-muted-foreground">{localizedDescription}</div>
+                                    )}
+                                  </label>
                                 </div>
-                              </label>
-                            ))}
+                              );
+                            })}
                           </>
                         )}
                       />

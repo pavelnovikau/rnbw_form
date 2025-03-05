@@ -11,12 +11,23 @@ export default function Home() {
   useEffect(() => {
     const savedLocale = localStorage.getItem('locale');
     if (savedLocale === 'ru' || savedLocale === 'en') {
+      console.log('Home: Loading saved locale from localStorage:', savedLocale);
       setLocale(savedLocale as Locale);
+    } else {
+      console.log('Home: Using default locale:', DEFAULT_LOCALE);
     }
   }, []);
   
+  // Обработчик изменения локали от переключателя
+  const handleLocaleChange = (newLocale: Locale) => {
+    console.log('Home: Locale changed to:', newLocale);
+    setLocale(newLocale);
+  };
+  
   // Функция для отображения года в футере
   const currentYear = new Date().getFullYear();
+
+  console.log('Home: Rendering with locale:', locale);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 dark:from-background dark:to-background">
@@ -27,7 +38,7 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
       </Head>
 
-      <LocaleSwitcher onChange={setLocale} />
+      <LocaleSwitcher onChange={handleLocaleChange} />
       
       <main className="container max-w-3xl px-4 py-10 md:py-16 mx-auto">
         <div className="space-y-6 mb-12">

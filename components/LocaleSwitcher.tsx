@@ -13,19 +13,25 @@ export function LocaleSwitcher({ onChange }: LocaleSwitcherProps) {
     // Get locale from localStorage if available
     const savedLocale = localStorage.getItem('locale');
     if (savedLocale && (savedLocale === 'ru' || savedLocale === 'en')) {
+      console.log('LocaleSwitcher: Loading saved locale from localStorage:', savedLocale);
       setCurrentLocale(savedLocale as Locale);
+    } else {
+      console.log('LocaleSwitcher: Using default locale:', DEFAULT_LOCALE);
     }
   }, []);
   
   useEffect(() => {
     // Save locale to localStorage when it changes
+    console.log('LocaleSwitcher: Setting locale to:', currentLocale);
     localStorage.setItem('locale', currentLocale);
     // Notify parent component of locale change
     onChange(currentLocale);
   }, [currentLocale, onChange]);
   
   const toggleLocale = () => {
-    setCurrentLocale(prev => prev === 'ru' ? 'en' : 'ru');
+    const newLocale = currentLocale === 'ru' ? 'en' : 'ru';
+    console.log('LocaleSwitcher: Toggle locale from', currentLocale, 'to', newLocale);
+    setCurrentLocale(newLocale);
   };
   
   return (
