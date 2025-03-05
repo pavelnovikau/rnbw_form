@@ -1,0 +1,26 @@
+{
+  "version": 2,
+  "github": {
+    "enabled": true,
+    "silent": false
+  },
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "outputDirectory": ".next",
+  "devCommand": "npm run dev",
+  "framework": "nextjs",
+  "regions": ["fra1"],
+  "env": {
+    "SENDGRID_API_KEY": {
+      "type": "secret"
+    },
+    "ADMIN_EMAIL": {
+      "type": "secret"
+    }
+  },
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_VERCEL_ENV": "production"
+    }
+  }
+} 

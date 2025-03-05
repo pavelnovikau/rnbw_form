@@ -1,120 +1,122 @@
-# RNBW Survey Landing Page
+# �� RNBW Survey Form
 
-This project is a landing page with a survey form for the RNBW device, built with modern web technologies to collect user feedback efficiently.
+Интерактивная форма опроса для парфюмерного устройства RNBW с многоязычной поддержкой и возможностью отправки результатов по email.
 
-## Technologies Used
+## 🚀 Возможности
 
-- **Next.js**: A React framework for production-grade applications
-- **TypeScript**: For type safety and better developer experience
-- **Tailwind CSS**: For utility-first styling
-- **Shadcn UI**: Beautiful, accessible UI components built with Radix UI and Tailwind CSS
-- **React Hook Form**: For efficient form state management
-- **Zod**: For form validation
-- **Nodemailer**: For sending survey responses via email
+- **Многоязычный интерфейс** — поддержка русского и английского языков
+- **Современный дизайн** — минималистичный стиль с яркими акцентами
+- **Адаптивный интерфейс** — корректно отображается на устройствах любого размера
+- **Анимации и переходы** — плавные анимации для улучшения пользовательского опыта
+- **Темный и светлый режимы** — автоматическое переключение в зависимости от системных настроек
+- **Валидация форм** — проверка корректности заполнения полей в реальном времени
+- **Отправка результатов по email** — возможность получать результаты опроса на почту в форматах JSON и Markdown
+- **Интеграция с GitHub и автоматический деплой** — автоматическое развертывание при обновлении репозитория
 
-## Features
+## 📋 Требования
 
-- **Responsive Design**: Works on all devices from mobile to desktop
-- **Dynamic Survey Form**: Configurable survey questions stored separately from UI code
-- **Form Validation**: Client-side validation with informative error messages
-- **Email Notification**: Sends survey responses to an admin email
-- **Localization Ready**: Built with internationalization (i18n) support for future language translations
-- **Modern UI Components**: Clean and accessible UI built with Shadcn UI components
+- Node.js 18+
+- npm 8+
+- SendGrid аккаунт (для отправки email)
+- Vercel аккаунт (для деплоя)
 
-## Getting Started
+## 🛠 Установка и настройка
 
-### Prerequisites
+### Локальная разработка
 
-- Node.js 18.x or later
-- npm or yarn
+1. **Клонирование репозитория**
 
-### Installation
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-username/rnbw-form.git
-   cd rnbw-form
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Create a `.env.local` file based on the provided `.env.local.example`:
-   ```bash
-   cp .env.local.example .env.local
-   ```
-   
-4. Update the environment variables in `.env.local` with your email server details.
-
-5. Start the development server:
-   ```bash
-   npm run dev
-   ```
-
-6. Open [http://localhost:3000](http://localhost:3000) to view the survey form.
-
-## Project Structure
-
-```
-rnbw_form/
-├── components/        # React components
-│   ├── ui/            # Shadcn UI components
-│   ├── Header.tsx     # Site header component
-│   ├── Footer.tsx     # Site footer component
-│   └── SurveyForm.tsx # Main survey form component
-├── lib/               # Utility functions and data
-│   ├── i18n.ts        # Internationalization utilities
-│   ├── surveyQuestions.ts # Survey questions data
-│   └── utils.ts       # General utility functions
-├── pages/             # Next.js pages
-│   ├── api/           # API routes
-│   │   └── submit-survey.ts # Endpoint for form submission
-│   └── index.tsx      # Landing page
-├── public/            # Static assets
-├── styles/            # Global styles
-└── ...                # Configuration files
+```bash
+git clone https://github.com/your-username/rnbw-form.git
+cd rnbw-form
 ```
 
-## Survey Form Structure
+2. **Установка зависимостей**
 
-The survey form is built using a flexible and maintainable approach:
+```bash
+npm install
+```
 
-- Survey questions are defined in `lib/surveyQuestions.ts` separate from the UI code
-- Each question has:
-  - A unique ID
-  - A question type (radio, checkbox, text, textarea)
-  - Localization keys for future translations
-  - Optional answer choices for radio/checkbox questions
-- Questions are grouped into logical sections
+3. **Создание файла .env.local**
 
-## Adding or Modifying Survey Questions
+Создайте файл `.env.local` в корне проекта со следующими переменными:
 
-To add or modify questions, update the `surveyData` array in `lib/surveyQuestions.ts`. The form will automatically generate the appropriate input fields and validation rules based on this data.
+```
+SENDGRID_API_KEY=your_sendgrid_api_key
+ADMIN_EMAIL=your_email@example.com
+```
 
-## Localization Support
+4. **Запуск в режиме разработки**
 
-The application is designed with future localization in mind:
+```bash
+npm run dev
+```
 
-- All user-facing text uses the `t()` function from `lib/i18n.ts`
-- Each text has a key and a default text (English)
-- To add a new language, add it to the `LOCALES` array and provide translations
+После этого приложение будет доступно по адресу [http://localhost:3000](http://localhost:3000)
 
-## Future Enhancements
+### Деплой на Vercel
 
-- User analytics integration
-- Dashboard for viewing survey responses
-- Additional question types (rating scales, etc.)
-- Theme customization
-- Full localization implementation for multiple languages
+1. **Подключение к GitHub**
 
-## License
+- Создайте репозиторий на GitHub и загрузите код
+- В панели управления Vercel импортируйте проект из GitHub
+- Vercel автоматически распознает Next.js проект и применит оптимальные настройки
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+2. **Настройка переменных окружения**
 
-## Acknowledgments
+В настройках проекта на Vercel добавьте следующие переменные окружения:
 
-- Built with [Next.js](https://nextjs.org/)
-- UI components from [Shadcn UI](https://ui.shadcn.com/)
-- Icons from [Lucide](https://lucide.dev/) 
+- `SENDGRID_API_KEY` — ваш API ключ SendGrid
+- `ADMIN_EMAIL` — email, на который будут отправляться результаты опроса
+
+3. **Настройка автоматического деплоя**
+
+Автоматический деплой уже настроен в файле `vercel.json`. При каждом пуше в основную ветку GitHub Vercel автоматически запустит сборку и деплой приложения.
+
+## 📝 Локализация
+
+Проект поддерживает русский и английский языки. Все переводы находятся в файле `lib/i18n.ts`. Для добавления новых языков:
+
+1. Обновите тип `Locale` в `lib/i18n.ts`
+2. Добавьте переводы в объект `translations`
+3. Обновите компонент `LocaleSwitcher` для поддержки нового языка
+
+## 📨 Настройка отправки email
+
+Для отправки результатов опроса по email используется SendGrid. Чтобы настроить отправку:
+
+1. Создайте аккаунт на [SendGrid](https://sendgrid.com/)
+2. Создайте API ключ и добавьте его в переменные окружения
+3. Верифицируйте email-отправитель в настройках SendGrid
+4. Обновите email-отправитель в файле `pages/api/submit-survey.ts`
+
+## 🧩 Структура проекта
+
+- `/components` — React компоненты
+- `/lib` — утилиты и данные опроса
+- `/pages` — страницы и API-маршруты
+- `/public` — статические файлы
+- `/styles` — CSS стили
+
+## 🔍 Настройка вопросов
+
+Вопросы опроса настраиваются в файле `lib/surveyQuestions.ts`. Каждый вопрос имеет следующие свойства:
+
+- `id` — уникальный идентификатор
+- `type` — тип вопроса (text, textarea, radio, checkbox, email)
+- `title` — текст вопроса
+- `description` — дополнительное описание (опционально)
+- `options` — варианты ответа для типов radio и checkbox
+- `required` — обязательность заполнения
+
+## 🖥️ Команды
+
+- `npm run dev` — запуск в режиме разработки
+- `npm run build` — сборка проекта
+- `npm run start` — запуск собранного проекта
+- `npm run lint` — проверка кода линтером
+- `npm run format` — форматирование кода
+
+## 📄 Лицензия
+
+MIT 

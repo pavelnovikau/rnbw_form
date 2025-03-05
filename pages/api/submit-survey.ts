@@ -1,110 +1,141 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import nodemailer from 'nodemailer';
-import { surveyData } from '@/lib/surveyQuestions';
+import sgMail from '@sendgrid/mail';
 
-type ResponseData = {
-  success: boolean;
-  message: string;
-};
+// Установка API ключа SendGrid
+// Примечание: Необходимо настроить переменную окружения SENDGRID_API_KEY
+if (process.env.SENDGRID_API_KEY) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+}
+
+// Адрес администратора, на который будут отправляться результаты опроса
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@example.com';
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ResponseData>
+  res: NextApiResponse
 ) {
-  // Only accept POST requests
+  // Проверяем метод запроса
   if (req.method !== 'POST') {
-    return res.status(405).json({ success: false, message: 'Method not allowed' });
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    // Get form data from request body
-    const formData = req.body;
+    const data = req.body;
     
-    // Email setup
-    const transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_SERVER,
-      port: Number(process.env.EMAIL_PORT) || 587,
-      secure: false,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD,
-      },
-    });
-
-    // Format the survey responses for the email
-    const formatSurveyData = (data: any) => {
-      let emailContent = `<h2>Survey Submission</h2>
-<h3>Contact Information</h3>
-<p><strong>Name:</strong> ${data.name || 'Not provided'}</p>
-<p><strong>Email:</strong> ${data.email || 'Not provided'}</p>
-
-`;
-
-      // Process survey sections and questions
-      surveyData.forEach(section => {
-        emailContent += `<h3>${section.defaultTitle}</h3>`;
-        
-        section.questions.forEach(question => {
-          const questionId = question.id;
-          const answer = data[questionId];
-          
-          // Skip if no answer provided and question is not required
-          if (!answer && !question.required) {
-            return;
-          }
-          
-          emailContent += `<p><strong>${question.defaultTitle}:</strong> `;
-          
-          // Format answer based on question type
-          if (question.type === 'radio' && answer) {
-            // For radio buttons, find the selected option text
-            const selectedOption = question.options?.find(opt => opt.id === answer);
-            emailContent += selectedOption ? selectedOption.defaultText : answer;
-          } 
-          else if (question.type === 'checkbox' && Array.isArray(answer) && answer.length > 0) {
-            // For checkboxes, find all selected option texts
-            const selectedOptions = answer.map(optionId => {
-              const option = question.options?.find(opt => opt.id === optionId);
-              return option ? option.defaultText : optionId;
-            });
-            emailContent += selectedOptions.join(', ');
-          } 
-          else {
-            // For text/textarea or any other type
-            emailContent += answer || 'Not provided';
-          }
-          
-          emailContent += '</p>';
-        });
+    // Преобразуем данные в отформатированный JSON
+    const jsonData = JSON.stringify(data, null, 2);
+    
+    // Преобразуем данные в Markdown формат
+    const markdownData = convertToMarkdown(data);
+    
+    // Проверяем, настроен ли SendGrid
+    if (!process.env.SENDGRID_API_KEY) {
+      console.warn('SendGrid API key not configured. Email delivery skipped.');
+      
+      // В случае отсутствия конфигурации, записываем данные в лог и возвращаем успешный ответ
+      console.log('Survey submission:', data);
+      return res.status(200).json({ 
+        success: true, 
+        message: 'Survey data received (email delivery skipped due to missing API key)' 
       });
-      
-      emailContent += `
-<p>Submitted on: ${new Date().toLocaleString()}</p>
-`;
-      
-      return emailContent;
-    };
-
-    // Send the email
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: process.env.EMAIL_RECIPIENT,
-      subject: 'New RNBW Survey Submission',
-      html: formatSurveyData(formData),
-    };
-
-    await transporter.sendMail(mailOptions);
+    }
     
-    // Respond to the client
-    res.status(200).json({
-      success: true,
-      message: 'Survey submitted successfully',
-    });
+    // Подготовка email с результатами опроса
+    const msg = {
+      to: ADMIN_EMAIL,
+      from: 'no-reply@rnbw.app', // Этот email должен быть верифицирован в SendGrid
+      subject: `Новый ответ на опрос RNBW от ${data.name || 'анонимного пользователя'}`,
+      text: `Получен новый ответ на опрос.\n\n${markdownData}`,
+      html: `
+        <h1>Новый ответ на опрос RNBW</h1>
+        <p>Получен новый ответ на опрос от ${data.name || 'анонимного пользователя'}.</p>
+        <h2>Данные в формате Markdown:</h2>
+        <pre style="background-color:#f5f5f5;padding:15px;border-radius:5px;white-space:pre-wrap;">${markdownData}</pre>
+        <h2>Данные в формате JSON:</h2>
+        <pre style="background-color:#f5f5f5;padding:15px;border-radius:5px;white-space:pre-wrap;">${jsonData}</pre>
+      `,
+      attachments: [
+        {
+          content: Buffer.from(jsonData).toString('base64'),
+          filename: 'survey-data.json',
+          type: 'application/json',
+          disposition: 'attachment',
+        },
+        {
+          content: Buffer.from(markdownData).toString('base64'),
+          filename: 'survey-data.md',
+          type: 'text/markdown',
+          disposition: 'attachment',
+        },
+      ],
+    };
+
+    // Отправка email
+    await sgMail.send(msg);
+    
+    // Возвращаем успешный ответ
+    return res.status(200).json({ success: true });
   } catch (error) {
     console.error('Error submitting survey:', error);
-    res.status(500).json({
-      success: false,
-      message: 'There was an error submitting your survey. Please try again.',
-    });
+    return res.status(500).json({ error: 'Internal server error' });
   }
+}
+
+// Функция для преобразования данных опроса в Markdown формат
+function convertToMarkdown(data: any): string {
+  const { submittedAt, ...formData } = data;
+  
+  let markdown = `# Результаты опроса RNBW\n\n`;
+  
+  // Добавляем дату и время отправки, если есть
+  if (submittedAt) {
+    markdown += `**Отправлено:** ${new Date(submittedAt).toLocaleString()}\n\n`;
+  }
+  
+  // Добавляем имя, если есть
+  if (formData.name) {
+    markdown += `**Имя:** ${formData.name}\n\n`;
+  }
+  
+  // Добавляем email, если есть
+  if (formData.email) {
+    markdown += `**Email:** ${formData.email}\n\n`;
+  }
+  
+  // Добавляем основную информацию об ответах
+  markdown += `## Ответы\n\n`;
+  
+  // Перебираем все поля формы, кроме имени и email, которые уже добавлены
+  Object.entries(formData)
+    .filter(([key]) => key !== 'name' && key !== 'email')
+    .forEach(([key, value]) => {
+      // Преобразуем ключ в более читаемый формат (например, "product_rating" -> "Product Rating")
+      const formattedKey = key
+        .split('_')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+      
+      // Обрабатываем разные типы значений
+      let formattedValue = '';
+      
+      if (Array.isArray(value)) {
+        // Если это массив (например, чекбоксы), выводим каждый элемент как пункт списка
+        formattedValue = value.length > 0
+          ? '\n' + value.map(item => `  - ${item}`).join('\n')
+          : '(Не выбрано)';
+      } else if (typeof value === 'boolean') {
+        // Если это булево значение
+        formattedValue = value ? 'Да' : 'Нет';
+      } else if (value === '' || value === null || value === undefined) {
+        // Если поле пустое
+        formattedValue = '(Не заполнено)';
+      } else {
+        // Для всех остальных типов данных
+        formattedValue = String(value);
+      }
+      
+      markdown += `### ${formattedKey}\n${formattedValue}\n\n`;
+    });
+  
+  return markdown;
 } 
